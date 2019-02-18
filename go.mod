@@ -1,16 +1,15 @@
-module golang-seed
+module github.com/alobaton/golang-seed
 
 require (
 	dmitri.shuralyov.com/app/changes v0.0.0-20181114035150-5af16e21babb // indirect
 	dmitri.shuralyov.com/service/change v0.0.0-20190203163610-217368fe4577 // indirect
 	git.apache.org/thrift.git v0.12.0 // indirect
 	github.com/Shopify/sarama v1.20.1 // indirect
-	github.com/alobaton/golang-seed v0.0.0-20190218161512-6da5f012fee6
 	github.com/altipla-consulting/cron v1.1.0 // indirect
-	github.com/altipla-consulting/database v1.0.0 // indirect
+	github.com/altipla-consulting/database v1.0.0
 	github.com/altipla-consulting/king v0.9.0 // indirect
 	github.com/altipla-consulting/sentry v0.3.1 // indirect
-	github.com/altipla-consulting/services v1.3.0 // indirect
+	github.com/altipla-consulting/services v1.3.0
 	github.com/certifi/gocertifi v0.0.0-20190105021004-abcd57078448 // indirect
 	github.com/coreos/go-systemd v0.0.0-20190212144455-93d5ec2c7f76 // indirect
 	github.com/getsentry/raven-go v0.2.0 // indirect
@@ -25,7 +24,7 @@ require (
 	github.com/gregjones/httpcache v0.0.0-20190212212710-3befbb6ad0cc // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.7.0 // indirect
 	github.com/json-iterator/go v1.1.5 // indirect
-	github.com/juju/errors v0.0.0-20190207033735-e65537c515d7 // indirect
+	github.com/juju/errors v0.0.0-20190207033735-e65537c515d7
 	github.com/kisielk/errcheck v1.2.0 // indirect
 	github.com/klauspost/compress v1.4.1 // indirect
 	github.com/klauspost/cpuid v1.2.0 // indirect
@@ -53,7 +52,7 @@ require (
 	github.com/shurcooL/reactions v0.0.0-20181222204718-145cd5e7f3d1 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/shurcooL/webdavfs v0.0.0-20181215192745-5988b2d638f6 // indirect
-	github.com/sirupsen/logrus v1.3.0 // indirect
+	github.com/sirupsen/logrus v1.3.0
 	github.com/smartystreets/assertions v0.0.0-20190215210624-980c5ac6f3ac // indirect
 	github.com/stretchr/testify v1.3.0 // indirect
 	github.com/tidwall/gjson v1.2.1 // indirect
@@ -73,6 +72,7 @@ require (
 	gopkg.in/go-oauth2/mysql.v3 v3.0.4
 	gopkg.in/gorp.v2 v2.0.0 // indirect
 	gopkg.in/oauth2.v3 v3.9.5
+	gopkg.in/yaml.v2 v2.2.2
 	honnef.co/go/tools v0.0.0-20190215041234-466a0476246c // indirect
 	sourcegraph.com/sqs/pbtypes v1.0.0 // indirect
 )

@@ -1,6 +1,8 @@
 package main
 
 import (
+	log "github.com/sirupsen/logrus"
+
 	"github.com/alobaton/golang-seed/apps/masters/pkg/models"
 	"github.com/alobaton/golang-seed/apps/settings/pkg/config"
 )

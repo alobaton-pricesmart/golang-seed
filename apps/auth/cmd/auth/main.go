@@ -23,15 +23,16 @@ func main() {
 		log.Fatal(err)
 	}
 
-	manager := manage.NewDefaultManager()
-
 	dsn := fmt.Sprintf(DnsChain, config.Database.User, config.Database.Password, config.Database.Address)
 	store := mysql.NewDefaultStore(
 		mysql.NewConfig(dsn),
 	)
 	defer store.Close()
 
+	manager := manage.NewDefaultManager()
+
 	manager.MapTokenStorage(store)
+
 	manager.MapClientStorage(store)
 
 	srv := server.NewDefaultServer(manager)

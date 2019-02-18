@@ -19,8 +19,6 @@ github.com/Shopify/sarama v1.20.1/go.mod h1:FVkBWblsNy7DGZRfXLU0O9RCGt5g3g3yEuWX
 github.com/ajg/form v0.0.0-20160822230020-523a5da1a92f/go.mod h1:uL1WgH+h2mgNtvBq0339dVnzXdBETtL2LeUXaIv25UY=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
-github.com/alobaton/golang-seed v0.0.0-20190218161512-6da5f012fee6 h1:z5E5I+qHW4MXWeKechnWllVeCp9XvuctUDmTFwt0lwc=
-github.com/alobaton/golang-seed v0.0.0-20190218161512-6da5f012fee6/go.mod h1:HKPe1ciq8UNWFvKV4lNUJQRnR5GHUX0u3z7pMUAnQrU=
 github.com/altipla-consulting/cron v1.1.0 h1:S9X8KJFS1C4OL2wR5SxgWE3K8u9l3arNnISjZMjxysA=
 github.com/altipla-consulting/cron v1.1.0/go.mod h1:fj7QW9qwVp4YLZUzS3ICtPxwBgWGdBTTjRksyptCXac=
 github.com/altipla-consulting/database v1.0.0 h1:O5+eJexMbaqypp4WD3cM3K+zynwil41nV1etXqfr6t0=
@@ -344,6 +342,7 @@ gopkg.in/oauth2.v3 v3.9.5 h1:d8n7in49VM6d6g4THkyAwykoS5UuuP1+3JfBJM8DsNg=
 gopkg.in/oauth2.v3 v3.9.5/go.mod h1:nTG+m2PRcHR9jzGNrGdxSsUKz7vvwkqSlhFrstgZcRU=
 gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7/go.mod h1:dt/ZhP58zS4L8KSrWDmTeBkI65Dw0HsyUHuEVlX15mw=
 gopkg.in/yaml.v2 v2.2.1/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
+gopkg.in/yaml.v2 v2.2.2 h1:ZCJp+EgiOT7lHqUV2J862kp8Qj64Jo6az82+3Td9dZw=
 gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
 grpc.go4.org v0.0.0-20170609214715-11d0a25b4919/go.mod h1:77eQGdRu53HpSqPFJFmuJdjuHRquDANNeA4x7B8WQ9o=
 honnef.co/go/tools v0.0.0-20180728063816-88497007e858/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
