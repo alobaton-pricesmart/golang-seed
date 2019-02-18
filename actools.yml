@@ -1,0 +1,45 @@
+
+project: github.com/alobaton/golang-seed
+
+services:  
+  auth:
+    type: go
+    workdir: apps/auth
+    deps:
+    - database
+    volumes:
+    - "./config/auth:/etc/auth"
+
+  masters:
+    type: go
+    workdir: apps/masters
+    deps:
+    - database
+    volumes:
+    - "./config/masters:/etc/masters"
+
+  settings:
+    type: go
+    workdir: apps/settings
+    deps:
+    - database
+    volumes:
+    - "./config/settings:/etc/settings"
+
+tools:
+  database:
+    container: mysql
+    ports:
+    - "3306:3306"
+    volumes:
+    - "./infra/cloudsql:/docker-entrypoint-initdb.d"
+
+  redis:
+    container: redis
+    ports:
+    - "6379:6379"
+
+  phpmyadmin:
+    container: phpmyadmin
+    ports:
+    - "5000:80"
