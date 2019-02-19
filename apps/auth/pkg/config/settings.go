@@ -4,9 +4,10 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/altipla-consulting/services"
 	"github.com/juju/errors"
 	"gopkg.in/yaml.v2"
+
+	"github.com/alobaton/golang-seed/pkg/services"
 )
 
 var Settings SettingsRoot

@@ -16,8 +16,19 @@ func NewClientStore() *ClientStore {
 // ClientStore client information store
 type ClientStore store.ClientStore
 
+func serializeClientInfo(id string, cli oauth2.ClientInfo) *models.Client {
+	client := &models.Client{
+		Code:     id,
+		Secret:   cli.GetSecret(),
+		Domain:   cli.GetDomain(),
+		UserCode: cli.GetUserID(),
+	}
+
+	return client
+}
+
 // GetByID according to the ID for the client information
-func (cs *ClientStore) GetByID(id string) (cli oauth2.ClientInfo, err error) {
+func (cs *ClientStore) GetByID(id string) (oauth2.ClientInfo, error) {
 	client := &models.Client{
 		Code: id,
 	}
@@ -29,8 +40,10 @@ func (cs *ClientStore) GetByID(id string) (cli oauth2.ClientInfo, err error) {
 }
 
 // Set set client information
-func (cs *ClientStore) Set(id string, cli oauth2.ClientInfo) (err error) {
-	if err := models.Repo.Markets().Put(cli); err != nil {
+func (cs *ClientStore) Set(id string, cli oauth2.ClientInfo) error {
+	client := serializeClientInfo(id, cli)
+
+	if err := models.Repo.Clients().Put(client); err != nil {
 		return errors.Trace(err)
 	}
 

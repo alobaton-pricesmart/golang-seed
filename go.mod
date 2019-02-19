@@ -5,11 +5,7 @@ require (
 	dmitri.shuralyov.com/service/change v0.0.0-20190203163610-217368fe4577 // indirect
 	git.apache.org/thrift.git v0.12.0 // indirect
 	github.com/Shopify/sarama v1.20.1 // indirect
-	github.com/altipla-consulting/cron v1.1.0 // indirect
 	github.com/altipla-consulting/database v1.0.0
-	github.com/altipla-consulting/king v0.9.0 // indirect
-	github.com/altipla-consulting/sentry v0.3.1 // indirect
-	github.com/altipla-consulting/services v1.3.0
 	github.com/certifi/gocertifi v0.0.0-20190105021004-abcd57078448 // indirect
 	github.com/coreos/go-systemd v0.0.0-20190212144455-93d5ec2c7f76 // indirect
 	github.com/getsentry/raven-go v0.2.0 // indirect
@@ -17,6 +13,7 @@ require (
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/gogo/protobuf v1.2.1 // indirect
 	github.com/golang/lint v0.0.0-20181217174547-8f45f776aaf1 // indirect
+	github.com/golang/snappy v0.0.0-20190218232222-2a8bb927dd31 // indirect
 	github.com/google/pprof v0.0.0-20190208070709-b421f19a5c07 // indirect
 	github.com/googleapis/gax-go v2.0.2+incompatible // indirect
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75 // indirect
@@ -25,6 +22,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.7.0 // indirect
 	github.com/json-iterator/go v1.1.5 // indirect
 	github.com/juju/errors v0.0.0-20190207033735-e65537c515d7
+	github.com/julienschmidt/httprouter v1.2.0
 	github.com/kisielk/errcheck v1.2.0 // indirect
 	github.com/klauspost/compress v1.4.1 // indirect
 	github.com/klauspost/cpuid v1.2.0 // indirect
@@ -61,12 +59,12 @@ require (
 	github.com/xeipuuv/gojsonschema v1.1.0 // indirect
 	go.opencensus.io v0.19.0 // indirect
 	go4.org v0.0.0-20190218023631-ce4c26f7be8e // indirect
-	golang.org/x/build v0.0.0-20190215225244-0261b66eb045 // indirect
+	golang.org/x/build v0.0.0-20190219155618-34d10b6c8e42 // indirect
 	golang.org/x/exp v0.0.0-20190212162250-21964bba6549 // indirect
 	golang.org/x/oauth2 v0.0.0-20190212230446-3e8b2be13635 // indirect
 	golang.org/x/perf v0.0.0-20190124201629-844a5f5b46f4 // indirect
-	golang.org/x/sys v0.0.0-20190215142949-d0b11bdaac8a // indirect
-	golang.org/x/tools v0.0.0-20190214204934-8dcb7bc8c7fe // indirect
+	golang.org/x/sys v0.0.0-20190219092855-153ac476189d // indirect
+	golang.org/x/tools v0.0.0-20190219135230-f000d56b39dc // indirect
 	google.golang.org/genproto v0.0.0-20190215211957-bd968387e4aa // indirect
 	google.golang.org/grpc v1.18.0 // indirect
 	gopkg.in/go-oauth2/mysql.v3 v3.0.4

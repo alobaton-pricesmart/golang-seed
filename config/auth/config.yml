@@ -1,5 +1,5 @@
 
 database:
-  user: dev-user
-  password: dev-password
+  user: prod-user
+  password: prod-password
   address: database:3306
