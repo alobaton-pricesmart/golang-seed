@@ -1,6 +1,8 @@
 # golang-seed
 
-![alt text](https://github.com/golang/go/blob/master/doc/gopher/gophercolor.png)
+<p align="center">
+  <img src="https://github.com/golang/go/blob/master/doc/gopher/gophercolor.png" width="350" title="hover text">
+</p>
 
 Provides fast, reliable and extensible starter for the development of Golang projects.
 
