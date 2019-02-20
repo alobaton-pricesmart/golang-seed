@@ -1,8 +1,10 @@
 <p align="center">
-  <img src="https://github.com/golang/go/blob/master/doc/gopher/gophercolor.png" width="300" title="hover text">
+  <img src="https://github.com/golang/go/blob/master/doc/gopher/gophercolor.png" width="100" title="hover text">
 </p>
 
 # golang-seed
+
+[![Build Status](https://travis-ci.org/alobaton/golang-seed.svg?branch=master)](https://travis-ci.org/alobaton/golang-seed)
 
 Provides fast, reliable and extensible starter for the development of Golang projects.
 
