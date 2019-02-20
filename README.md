@@ -1,10 +1,10 @@
-# golang-seed
-
-Provides fast, reliable and extensible starter for the development of Golang projects.
-
 <p align="center">
   <img src="https://github.com/golang/go/blob/master/doc/gopher/gophercolor.png" width="300" title="hover text">
 </p>
+
+# golang-seed
+
+Provides fast, reliable and extensible starter for the development of Golang projects.
 
 `golang-seed` provides the following features:
 
