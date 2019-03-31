@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="https://github.com/golang/go/blob/master/doc/gopher/gophercolor.png" width="100" title="hover text">
-</p>
-
 # golang-seed
 
 [![Build Status](https://travis-ci.org/alobaton/golang-seed.svg?branch=master)](https://travis-ci.org/alobaton/golang-seed)
@@ -20,3 +16,7 @@ Provides fast, reliable and extensible starter for the development of Golang pro
 ## actools
 
 Make sure you have configured a SSH Key using `ssh-keygen -t rsa -b 4096 -C "your_email@example.com"`, copy the output of `cat id_rsa.pub` and paste in your `Github Profile -> Settings -> SSH and GPG Keys -> Add new SSH key`.
+
+## Contributors
+
+[<img alt="alobaton" src="https://avatars1.githubusercontent.com/u/9356067?s=460&v=4" width="117">](https://github.com/alobaton)
