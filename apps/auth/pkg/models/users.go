@@ -1,13 +1,9 @@
 package models
 
-import (
-	"github.com/altipla-consulting/database"
-)
-
 type User struct {
-	database.ModelTracking
-
-	Code string `db:"code,pk"`
+	Code     string `gorm:"primaryKey"`
+	Name     string
+	LastName string
 }
 
 func (user *User) TableName() string {

@@ -1,0 +1,19 @@
+version: "2.2"
+
+services:
+  db:
+    container_name: app-name-api-db-dev
+    hostname: db.dev.local
+    image: mysql:8.0.13
+    environment:
+      - MYSQL_ROOT_PASSWORD=root-password
+      - MYSQL_ROOT_HOST=%
+      - MYSQL_DATABASE=dev-db
+      - MYSQL_USER=dev-user
+      - MYSQL_PASSWORD=dev-password
+    volumes:
+      - ./mysql-dev/db:/var/lib/mysql
+      - ./mysql-dev/dmp:/var/lib/mydmp
+      - ./mysql-dev/init:/docker-entrypoint-initdb.d
+    ports:
+      - 3306:3306

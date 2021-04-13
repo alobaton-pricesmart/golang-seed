@@ -13,6 +13,6 @@ Put here your applications.
 |   |   └── settings.go <- Application settings
 |   ├── models <- Application models
 |   |   └── repo.go <- Database connection
-|   └── services <- Application services
+|   └── service <- Application services
 └── Dockerfile
 ```

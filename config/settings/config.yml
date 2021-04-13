@@ -1,5 +1,0 @@
-
-database:
-  user: prod-user
-  password: prod-password
-  address: database:3306

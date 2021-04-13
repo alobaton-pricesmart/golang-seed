@@ -1,38 +1,47 @@
 package models
 
 import (
-	"github.com/altipla-consulting/database"
 	"github.com/juju/errors"
+	"gorm.io/gorm"
 
-	"github.com/alobaton/golang-seed/apps/auth/pkg/config"
+	"golang-seed/apps/auth/pkg/config"
+	"golang-seed/pkg/database"
+	"golang-seed/pkg/service"
 )
 
-var Repo *MainDatabase
+var Repo *Repository
 
 func ConnectRepo() error {
 	credentials := database.Credentials{
 		User:      config.Settings.Database.User,
 		Password:  config.Settings.Database.Password,
 		Address:   config.Settings.Database.Address,
-		Database:  "app_auth",
+		Database:  config.Settings.Database.Name,
 		Charset:   "utf8mb4",
 		Collation: "utf8mb4_bin",
 	}
 
-	sess, err := database.Open(credentials)
+	database, err := database.Open(credentials, service.IsLocal())
 	if err != nil {
 		return errors.Trace(err)
 	}
 
-	Repo = &MainDatabase{sess}
+	Repo = &Repository{database}
+
+	Repo.database.Migrate(new(Client))
+	Repo.database.Migrate(new(User))
 
 	return nil
 }
 
-type MainDatabase struct {
-	sess *database.Database
+type Repository struct {
+	database *database.Database
 }
 
-func (repo *MainDatabase) Clients() *database.Collection {
-	return repo.sess.Collection(new(Client))
+func (r *Repository) Clients() *gorm.DB {
+	return r.database.Model(new(Client))
+}
+
+func (r *Repository) Users() *gorm.DB {
+	return r.database.Model(new(User))
 }

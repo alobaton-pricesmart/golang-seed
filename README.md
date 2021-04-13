@@ -8,14 +8,29 @@ Provides fast, reliable and extensible starter for the development of Golang pro
 
 - Modularized project.
 - i18n support.
-- Application masters module.
-- Application settings module.
 - Production and development builds.
 - Provides full Docker support for both development and production environment.
 
-## actools
+## How to start?
 
-Make sure you have configured a SSH Key using `ssh-keygen -t rsa -b 4096 -C "your_email@example.com"`, copy the output of `cat id_rsa.pub` and paste in your `Github Profile -> Settings -> SSH and GPG Keys -> Add new SSH key`.
+Before start update the /etc/hosts file:
+```bash
+# tools
+127.0.0.1       db.dev.local
+127.0.0.1       db.prod.local
+127.0.0.1       api.dev.local
+127.0.0.1       api.prod.local
+```
+Clone the repository:
+```bash
+$ git clone --depth 1 https://github.com/alobaton/golang-seed.git
+$ cd golang-seed
+```
+
+Start the database:
+```bash
+$ docker-compose -f docker-compose.dev.yml up -d db
+```
 
 ## Contributors
 

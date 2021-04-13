@@ -3,11 +3,12 @@ package config
 import (
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"github.com/juju/errors"
 	"gopkg.in/yaml.v2"
 
-	"github.com/alobaton/golang-seed/pkg/services"
+	"golang-seed/pkg/service"
 )
 
 var Settings SettingsRoot
@@ -20,15 +21,21 @@ type Database struct {
 	User     string `yaml:"user"`
 	Password string `yaml:"password"`
 	Address  string `yaml:"address"`
+	Name     string `yaml:"name"`
 }
 
 func ParseSettings() error {
-	path := "/etc/auth/config.yml"
-	if services.IsLocal() {
-		path = "/etc/auth/config.dev.yml"
+	path := ".apps/auth/config/config.yml"
+	if service.IsLocal() {
+		path = "apps/auth/config/config.dev.yml"
 	}
 
-	f, err := os.Open(path)
+	p, err := filepath.Abs(path)
+	if err != nil {
+		return errors.Trace(err)
+	}
+
+	f, err := os.Open(p)
 	if err != nil {
 		return errors.Trace(err)
 	}

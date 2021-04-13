@@ -1,39 +1,33 @@
 package models
 
 import (
-	"gopkg.in/oauth2.v3"
-
-	"github.com/altipla-consulting/database"
+	"github.com/go-oauth2/oauth2/v4"
 )
 
 type Client struct {
-	database.ModelTracking
-	oauth2.ClientInfo
+	oauth2.ClientInfo `gorm:"-"`
 
-	Code     string `db:"code,pk"`
-	Secret   string `db:"secret"`
-	Domain   string `db:"domain"`
-	UserCode string `db:"user_code"`
+	Code   string `gorm:"primaryKey"`
+	Secret string
+	Domain string
+	UserID string
 }
 
-// GetID client id
-func (c *Client) GetID() string {
+// Implements oauth2.ClientInfo interface
+func (c Client) GetID() string {
 	return c.Code
 }
 
-// GetSecret client domain
-func (c *Client) GetSecret() string {
+func (c Client) GetSecret() string {
 	return c.Secret
 }
 
-// GetDomain client domain
-func (c *Client) GetDomain() string {
+func (c Client) GetDomain() string {
 	return c.Domain
 }
 
-// GetUserID user id
-func (c *Client) GetUserID() string {
-	return c.UserCode
+func (c Client) GetUserID() string {
+	return c.UserID
 }
 
 func (client *Client) TableName() string {

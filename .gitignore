@@ -3,3 +3,8 @@
 *.pyc
 static
 core
+
+# Others
+mysql-dev/*
+mysql-test/*
+mysql-prod/*

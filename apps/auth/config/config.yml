@@ -1,0 +1,5 @@
+database:
+  user: prod-user
+  password: prod-password
+  address: db.prod.local:3306
+  name: dev-db

@@ -1,0 +1,5 @@
+database:
+  user: dev-user
+  password: dev-password
+  address: db.dev.local:3306
+  name: dev-db
