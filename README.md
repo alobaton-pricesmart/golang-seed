@@ -33,7 +33,3 @@ Start the database:
 ```bash
 $ docker-compose -f docker-compose.dev.yml up -d db
 ```
-
-## Contributors
-
-[<img alt="alobaton" src="https://avatars1.githubusercontent.com/u/9356067?s=460&v=4" width="117">](https://github.com/alobaton)
