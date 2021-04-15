@@ -9,16 +9,16 @@ import (
 type User struct {
 	database.AuditModel
 
-	ID       uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
-	Nickname string    `gorm:"index"`
-	Name     string
-	LastName string
-	Email    string `gorm:"index"`
-	Password string
-	Locked   bool
-	Enabled  bool
+	ID       uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()" json:"id"`
+	Nickname string    `gorm:"index" json:"nickname"`
+	Name     string    `json:"name"`
+	LastName string    `json:"lastName"`
+	Email    string    `gorm:"index"`
+	Password string    `json:"password"`
+	Locked   bool      `json:"locked"`
+	Enabled  bool      `json:"enabled"`
 
-	UserRoles []UserRole `gorm:"many2many:user_role;"`
+	UserRoles []UserRole `gorm:"many2many:user_role;" json:"userRoles"`
 }
 
 func (u User) TableName() string {

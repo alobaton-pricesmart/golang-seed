@@ -1,6 +1,8 @@
 package database
 
 import (
+	"fmt"
+
 	"gorm.io/gorm"
 )
 
@@ -19,16 +21,23 @@ func newCollection(db *Database, model Model) *Collection {
 	return c
 }
 
-func (c *Collection) Pageable(page, size int) *Collection {
-	if page < 0 {
-		page = 0
+func (c *Collection) Pageable(pageable Pageable) *Collection {
+	if pageable.Page < 0 {
+		pageable.Page = 0
 	}
 
-	if size < 0 {
-		size = 10
+	if pageable.Size < 0 {
+		pageable.Size = 10
 	}
 
-	c.db = c.db.Offset(page).Limit(size)
+	c.db = c.db.Offset(pageable.Page).Limit(pageable.Size)
+	return c
+}
+
+func (c *Collection) Order(sort Sort) *Collection {
+	for _, s := range sort.sorters {
+		c.db = c.db.Order(fmt.Sprintf("%v %v", s.field, s.direction))
+	}
 	return c
 }
 
@@ -48,12 +57,12 @@ func (c *Collection) Conditions(conditions interface{}) *Collection {
 	return c
 }
 
-func (c *Collection) FindAll(instance interface{}) error {
+func (c *Collection) Find(instance interface{}) error {
 	result := c.db.Find(instance)
 	return result.Error
 }
 
-func (c *Collection) GetByID(instance Model) error {
+func (c *Collection) Get(instance Model) error {
 	result := c.db.First(instance)
 	return result.Error
 }

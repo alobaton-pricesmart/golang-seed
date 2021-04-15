@@ -27,7 +27,7 @@ type Database struct {
 }
 
 func ParseSettings() error {
-	path := ".apps/auth/config/config.yml"
+	path := "apps/auth/config/config.yml"
 	if server.IsLocal() {
 		path = "apps/auth/config/config.dev.yml"
 	}

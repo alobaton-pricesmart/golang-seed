@@ -3,9 +3,11 @@ module golang-seed
 go 1.16
 
 require (
+	github.com/alobaton/i18n v1.0.0 // indirect
 	github.com/go-oauth2/oauth2/v4 v4.3.0
 	github.com/google/uuid v1.2.0 // indirect
 	github.com/gorilla/mux v1.8.0
+	github.com/gorilla/schema v1.2.0 // indirect
 	github.com/juju/errors v0.0.0-20200330140219-3fe23663418f
 	github.com/juju/testing v0.0.0-20210324180055-18c50b0c2098 // indirect
 	github.com/sirupsen/logrus v1.8.1

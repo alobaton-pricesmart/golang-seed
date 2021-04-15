@@ -1,0 +1,17 @@
+{
+    "general": {
+        "error": {
+            "marshal": "Error serializando la respuesta",
+            "getting": "Error obteniendo %s",
+            "invalidID": "id es invalido"
+        }
+    },
+    "users": {
+        "user": "Usuario",
+        "users": "Usuarios"
+    },
+    "clients": {
+        "client": "Cliente",
+        "clients": "Clientes"
+    }
+}

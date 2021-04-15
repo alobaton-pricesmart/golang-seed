@@ -5,8 +5,8 @@ import "golang-seed/pkg/database"
 type RolePermission struct {
 	database.AuditModel
 
-	RoleCode       string `gorm:"primaryKey"`
-	PermissionCode string `gorm:"primaryKey"`
+	RoleCode       string `gorm:"primaryKey" json:"roleCode"`
+	PermissionCode string `gorm:"primaryKey" json:"permissionCode"`
 }
 
 func (u RolePermission) TableName() string {

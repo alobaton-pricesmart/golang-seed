@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"golang-seed/apps/auth/pkg/messagesconst"
 	"golang-seed/apps/auth/pkg/service/usersserv"
 	"golang-seed/pkg/httperror"
+	"golang-seed/pkg/messages"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -25,17 +27,17 @@ func (u UsersHandler) Get(w http.ResponseWriter, r *http.Request) error {
 
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		return httperror.NewHTTPError(err, http.StatusBadRequest, "Invalid id")
+		return httperror.NewHTTPError(err, http.StatusBadRequest, messages.Get(messagesconst.GeneralErrorInvalidID))
 	}
 
 	user, err := u.usersService.Get(uid)
 	if err != nil {
-		return httperror.NewHTTPError(err, http.StatusInternalServerError, "Error getting data from database")
+		return httperror.NewHTTPError(err, http.StatusInternalServerError, messages.Get(messagesconst.GeneralErrorGetting, messages.Get(messagesconst.UsersUser)))
 	}
 
 	body, err := json.Marshal(user)
 	if err != nil {
-		return httperror.NewHTTPError(err, http.StatusInternalServerError, "Error serializing data")
+		return httperror.NewHTTPError(err, http.StatusInternalServerError, messages.Get(messagesconst.GeneralErrorMarshal))
 	}
 
 	w.WriteHeader(http.StatusOK)

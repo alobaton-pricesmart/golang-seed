@@ -7,9 +7,10 @@ import (
 
 // HTTPError implements ClientError interface.
 type HTTPError struct {
-	Cause            error  `json:"error"`
+	Cause            error  `json:"-"`
+	CauseMessage     string `json:"error"`
 	ErrorDescription string `json:"error_description"`
-	Status           int    `json:"-"`
+	Status           int    `json:"status"`
 }
 
 // Allows StatusError to satisfy the error interface.
@@ -39,6 +40,7 @@ func (e *HTTPError) ResponseHeaders() (int, map[string]string) {
 func NewHTTPError(err error, status int, errorDescription string) error {
 	return &HTTPError{
 		Cause:            err,
+		CauseMessage:     err.Error(),
 		ErrorDescription: errorDescription,
 		Status:           status,
 	}

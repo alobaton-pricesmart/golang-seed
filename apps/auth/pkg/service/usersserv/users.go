@@ -17,7 +17,7 @@ func (s *UsersService) Get(id uuid.UUID) (models.User, error) {
 	user := &models.User{
 		ID: id,
 	}
-	err := models.Repo.Users().GetByID(user)
+	err := models.Repo.Users().Get(user)
 
 	return *user, err
 }

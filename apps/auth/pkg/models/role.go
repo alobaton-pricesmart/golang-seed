@@ -5,12 +5,12 @@ import "golang-seed/pkg/database"
 type Role struct {
 	database.AuditModel
 
-	Code        string `gorm:"primaryKey"`
-	GroupID     string
-	Name        string
-	Description string
+	Code        string `gorm:"primaryKey" json:"code"`
+	GroupID     string `json:"groupID"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 
-	RolePermissions []RolePermission `gorm:"many2many:role_permission;"`
+	RolePermissions []RolePermission `gorm:"many2many:role_permission;" json:"rolePermissions"`
 }
 
 func (r Role) TableName() string {

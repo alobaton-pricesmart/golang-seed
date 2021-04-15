@@ -35,7 +35,7 @@ func (cs *ClientStore) GetByID(ctx context.Context, id string) (oauth2.ClientInf
 	client := &models.Client{
 		Code: id,
 	}
-	err := models.Repo.Clients().GetByID(client)
+	err := models.Repo.Clients().Get(client)
 
 	return client, err
 }

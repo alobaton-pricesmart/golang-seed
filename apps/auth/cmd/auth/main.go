@@ -9,6 +9,7 @@ import (
 	"golang-seed/apps/auth/pkg/service/clientsserv"
 	"golang-seed/apps/auth/pkg/service/usersserv"
 	"golang-seed/apps/auth/pkg/store"
+	"golang-seed/pkg/messages"
 	"golang-seed/pkg/middleware"
 	"golang-seed/pkg/server"
 
@@ -46,12 +47,13 @@ func registerRoutes(r *mux.Router) {
 
 	clientsService := clientsserv.NewClientsService()
 	clientsHandler := clientshand.NewClientsHandler(clientsService)
-	r.Handle("/clients/{id}", middleware.ErrorHandler(clientsHandler.Get)).Methods("GET")
-	r.Handle("/clients/search/list", middleware.ErrorHandler(clientsHandler.GetAll)).Methods("GET")
-	r.Handle("/clients/search/paged", middleware.ErrorHandler(clientsHandler.GetAllPaged)).Methods("GET")
-	r.Handle("/clients", middleware.ErrorHandler(clientsHandler.Create)).Methods("POST")
-	r.Handle("/clients/{id}", middleware.ErrorHandler(clientsHandler.Update)).Methods("PUT")
-	r.Handle("/clients/{id}", middleware.ErrorHandler(clientsHandler.Delete)).Methods("DELETE")
+	r = r.PathPrefix("/clients").Subrouter()
+	r.Handle("/{id}", middleware.ErrorHandler(clientsHandler.Get)).Methods("GET")
+	r.Handle("/search/list", middleware.ErrorHandler(clientsHandler.GetAll)).Methods("GET")
+	r.Handle("/search/paged", middleware.ErrorHandler(clientsHandler.GetAllPaged)).Methods("GET")
+	r.Handle("/", middleware.ErrorHandler(clientsHandler.Create)).Methods("POST")
+	r.Handle("/{id}", middleware.ErrorHandler(clientsHandler.Update)).Methods("PUT")
+	r.Handle("/{id}", middleware.ErrorHandler(clientsHandler.Delete)).Methods("DELETE")
 }
 
 func main() {
@@ -60,6 +62,10 @@ func main() {
 	}
 
 	if err := models.ConnectRepo(); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := messages.Init("apps/auth/config/es.json", "es"); err != nil {
 		log.Fatal(err)
 	}
 
