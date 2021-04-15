@@ -35,9 +35,9 @@ func (cs *ClientStore) GetByID(ctx context.Context, id string) (oauth2.ClientInf
 	client := &models.Client{
 		Code: id,
 	}
-	models.Repo.Clients().First(client)
+	err := models.Repo.Clients().GetByID(client)
 
-	return client, nil
+	return client, err
 }
 
 // Set set client information
@@ -47,7 +47,5 @@ func (cs *ClientStore) Set(id string, cli oauth2.ClientInfo) error {
 
 	client := serializeClientInfo(id, cli)
 
-	models.Repo.Clients().Updates(client)
-
-	return nil
+	return models.Repo.Clients().Update(client)
 }

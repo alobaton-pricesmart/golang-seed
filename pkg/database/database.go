@@ -15,12 +15,16 @@ type Database struct {
 	debug bool
 }
 
-func (d *Database) Model(model interface{}) *gorm.DB {
-	return d.db.Model(model)
+func (d *Database) Collection(model Model) *Collection {
+	return newCollection(d, model)
 }
 
-func (d *Database) Migrate(model interface{}) {
+func (d *Database) Migrate(model Model) {
 	d.db.AutoMigrate(model)
+}
+
+func (d *Database) SetupJoinTable(model Model, fieldName string, joinTable Model) {
+	d.db.SetupJoinTable(model, fieldName, joinTable)
 }
 
 func Open(credentials Credentials, debug bool) (*Database, error) {

@@ -1,4 +1,4 @@
-package service
+package server
 
 import (
 	"context"
@@ -20,84 +20,92 @@ import (
 // Service stores the configuration of the service we are configuring.
 type Service struct {
 	name string
+	port int
 
 	enableRouting       bool
 	routingHTTPServer   *http.Server
 	routingRouterCalled bool
 	routingHTTPRouter   *mux.Router
-
-	enableProfiler bool
 }
 
 // Init the configuration of a new service for the current application with
 // the provided name.
-func Init(name string) *Service {
+func Init(name string, port int) *Service {
 	return &Service{
 		name: name,
+		port: port,
 	}
 }
 
 // ConfigureRouting enables a HTTP router.
-func (service *Service) ConfigureRouting() {
-	service.enableRouting = true
+func (s *Service) ConfigureRouting() {
+	s.enableRouting = true
 }
 
 // RoutingRouter returns the router to register new HTTP routes on it.
-func (service *Service) RoutingRouter() *mux.Router {
-	if !service.enableRouting {
+func (s *Service) RoutingRouter() *mux.Router {
+	if !s.enableRouting {
 		panic("routing must be enabled to get a routing router")
 	}
 
-	if service.routingHTTPRouter == nil {
-		service.routingHTTPRouter = mux.NewRouter()
+	if s.routingRouterCalled || s.routingHTTPRouter != nil {
+		panic("routing router already called")
 	}
 
-	service.routingHTTPRouter.Use(middleware.RecoverHandler)
-	service.routingHTTPRouter.Use(middleware.HeaderHandler)
+	router := mux.NewRouter()
+	if len(s.name) > 0 {
+		router = router.PathPrefix(s.name).Subrouter()
+	}
 
-	service.routingRouterCalled = true
+	s.routingHTTPRouter = router
 
-	return service.routingHTTPRouter
+	s.routingHTTPRouter.Use(middleware.RecoverHandler)
+	s.routingHTTPRouter.Use(middleware.HeaderHandler)
+	s.routingHTTPRouter.Use(mux.CORSMethodMiddleware(s.routingHTTPRouter))
+
+	s.routingRouterCalled = true
+
+	return s.routingHTTPRouter
 }
 
 // Run starts listening in every configure port needed to provide the configured features.
-func (service *Service) Run() {
+func (s *Service) Run() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
-	if service.enableRouting && !service.routingRouterCalled {
+	if s.enableRouting && !s.routingRouterCalled {
 		panic("do not configure routing without routes")
 	}
 
 	var wg sync.WaitGroup
 
-	if service.enableRouting {
+	if s.enableRouting {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 
 			log.Info("routing server enabled")
 
-			service.routingHTTPServer = &http.Server{
-				Addr:    ":8080",
-				Handler: service.routingHTTPRouter,
+			s.routingHTTPServer = &http.Server{
+				Addr:    fmt.Sprintf(":%d", s.port),
+				Handler: s.routingHTTPRouter,
 			}
-			if err := service.routingHTTPServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			if err := s.routingHTTPServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 				log.Fatal(err)
 			}
 		}()
 	}
 
-	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) { fmt.Fprintf(w, "%s is ok\n", service.name) })
+	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) { fmt.Fprintf(w, "%s is ok\n", s.name) })
 
-	service.stopListener()
+	s.stopListener()
 
-	log.WithField("name", service.name).Println("instance initialized successfully!")
+	log.WithField("name", s.name).Println("instance initialized successfully!")
 
 	wg.Wait()
 	os.Exit(0)
 }
 
-func (service *Service) stopListener() {
+func (s *Service) stopListener() {
 	var gracefulStop = make(chan os.Signal)
 	signal.Notify(gracefulStop, syscall.SIGTERM)
 	signal.Notify(gracefulStop, syscall.SIGINT)
@@ -108,7 +116,7 @@ func (service *Service) stopListener() {
 
 		var wg sync.WaitGroup
 
-		if service.enableRouting {
+		if s.enableRouting {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
@@ -116,7 +124,7 @@ func (service *Service) stopListener() {
 				ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 				defer cancel()
 
-				if err := service.routingHTTPServer.Shutdown(ctx); err != nil {
+				if err := s.routingHTTPServer.Shutdown(ctx); err != nil {
 					log.WithField("error", err).Error("cannot shutdown routing HTTP server")
 				}
 			}()

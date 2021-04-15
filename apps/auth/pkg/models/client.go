@@ -1,16 +1,19 @@
 package models
 
 import (
+	"golang-seed/pkg/database"
+
 	"github.com/go-oauth2/oauth2/v4"
 )
 
 type Client struct {
-	oauth2.ClientInfo `gorm:"-"`
+	database.AuditModel
+	oauth2.ClientInfo `gorm:"-" json:"-"`
 
-	Code   string `gorm:"primaryKey"`
-	Secret string
-	Domain string
-	UserID string
+	Code   string `gorm:"primaryKey" json:"code"`
+	Secret string `json:"secret"`
+	Domain string `json:"domain"`
+	UserID string `json:"-"`
 }
 
 // Implements oauth2.ClientInfo interface
@@ -30,6 +33,6 @@ func (c Client) GetUserID() string {
 	return c.UserID
 }
 
-func (client *Client) TableName() string {
+func (c Client) TableName() string {
 	return "clients"
 }

@@ -2,11 +2,10 @@ package models
 
 import (
 	"github.com/juju/errors"
-	"gorm.io/gorm"
 
 	"golang-seed/apps/auth/pkg/config"
 	"golang-seed/pkg/database"
-	"golang-seed/pkg/service"
+	"golang-seed/pkg/server"
 )
 
 var Repo *Repository
@@ -21,15 +20,24 @@ func ConnectRepo() error {
 		Collation: "utf8mb4_bin",
 	}
 
-	database, err := database.Open(credentials, service.IsLocal())
+	database, err := database.Open(credentials, server.IsLocal())
 	if err != nil {
 		return errors.Trace(err)
 	}
 
 	Repo = &Repository{database}
 
+	/**
+	TODO(alobaton): Create a migrations cmd
 	Repo.database.Migrate(new(Client))
+	Repo.database.Migrate(new(Permission))
+	Repo.database.Migrate(new(Role))
+	Repo.database.Migrate(new(RolePermission))
+	Repo.database.SetupJoinTable(new(Role), "RolePermissions", new(RolePermission))
 	Repo.database.Migrate(new(User))
+	Repo.database.Migrate(new(UserRole))
+	Repo.database.SetupJoinTable(new(User), "UserRoles", new(UserRole))
+	*/
 
 	return nil
 }
@@ -38,10 +46,26 @@ type Repository struct {
 	database *database.Database
 }
 
-func (r *Repository) Clients() *gorm.DB {
-	return r.database.Model(new(Client))
+func (r *Repository) Clients() *database.Collection {
+	return r.database.Collection(new(Client))
 }
 
-func (r *Repository) Users() *gorm.DB {
-	return r.database.Model(new(User))
+func (r *Repository) Permissions() *database.Collection {
+	return r.database.Collection(new(Permission))
+}
+
+func (r *Repository) Roles() *database.Collection {
+	return r.database.Collection(new(Role))
+}
+
+func (r *Repository) RolePermissions() *database.Collection {
+	return r.database.Collection(new(RolePermission))
+}
+
+func (r *Repository) Users() *database.Collection {
+	return r.database.Collection(new(User))
+}
+
+func (r *Repository) UserRoles() *database.Collection {
+	return r.database.Collection(new(UserRole))
 }

@@ -1,5 +1,7 @@
 # golang-seed
 
+> :warning: **Still under construction**
+
 [![Build Status](https://travis-ci.org/alobaton/golang-seed.svg?branch=master)](https://travis-ci.org/alobaton/golang-seed)
 
 Provides fast, reliable and extensible starter for the development of Golang projects.

@@ -1,5 +1,5 @@
-name: auth
-port: 8082
+name: core
+port: 8083
 database:
   user: dev-user
   password: dev-password
