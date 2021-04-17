@@ -15,9 +15,10 @@ type httpError interface {
 	ResponseHeaders() (int, map[string]string)
 }
 
-// Use as a wrapper around the handler functions.
+// ErrorHandlerFunc type of the functions ErrorHandler wraps.
 type ErrorHandlerFunc func(http.ResponseWriter, *http.Request) error
 
+// ErrorHandler use as a wrapper around the ErrorHandlerFunc functions.
 func ErrorHandler(next ErrorHandlerFunc) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		err := next(w, r)
@@ -26,28 +27,22 @@ func ErrorHandler(next ErrorHandlerFunc) http.Handler {
 			return
 		}
 
-		// This is where our error handling logic starts.
 		log.WithField("error", err).Error("an error accured")
 
-		// Check if it is a HttpError.
-		clientError, ok := err.(httpError)
+		httpError, ok := err.(httpError)
 		if !ok {
-			// If the error is not ClientError, assume that it is ServerError.
-			// return 500 Internal Server Error.
 			w.WriteHeader(500)
 			return
 		}
 
-		// Try to get response body of ClientError.
-		body, err := clientError.ResponseBody()
+		body, err := httpError.ResponseBody()
 		if err != nil {
 			log.WithField("error", err).Error("an error accured")
 			w.WriteHeader(500)
 			return
 		}
 
-		// Get http status code and headers.
-		status, headers := clientError.ResponseHeaders()
+		status, headers := httpError.ResponseHeaders()
 		for k, v := range headers {
 			w.Header().Set(k, v)
 		}

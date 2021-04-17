@@ -3,10 +3,10 @@
         "error": {
             "internalServerError": "Error interno del servidor",
             "marshal": "Error serializando la respuesta",
-            "invalidID": "id es invalido",
             "registerNotFound": "No se ha encontrado registros de %s",
             "registerNotFoundParams": "No se ha encontrado registros de %s con los parametros de búsqueda %v",
-            "fieldRequired": "El campos %s es requerido",
+            "requiredField": "El campo %s es requerido",
+            "invalidField": "El campo %s es invalido",
             "accessingDatabase": "Error accediendo a la base de datos"
         }
     },

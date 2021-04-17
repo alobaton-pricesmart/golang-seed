@@ -26,7 +26,7 @@ func (s *UsersService) Get(id uuid.UUID) (*models.User, error) {
 	err := models.Repo.Users().Get(user)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
-			return nil, httperror.NewHTTPErrorT(
+			return nil, httperror.ErrorCauseT(
 				err,
 				http.StatusNotFound,
 				messagesconst.GeneralErrorRegisterNotFoundParams,
@@ -34,7 +34,7 @@ func (s *UsersService) Get(id uuid.UUID) (*models.User, error) {
 				fmt.Sprintf("id %v", id))
 		}
 
-		return nil, httperror.NewHTTPErrorT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	return user, nil

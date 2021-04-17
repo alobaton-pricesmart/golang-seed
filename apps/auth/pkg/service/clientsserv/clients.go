@@ -24,7 +24,7 @@ func (s *ClientsService) Get(id string) (*models.Client, error) {
 	err := models.Repo.Clients().Get(client)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
-			return nil, httperror.NewHTTPErrorT(
+			return nil, httperror.ErrorCauseT(
 				err,
 				http.StatusNotFound,
 				messagesconst.GeneralErrorRegisterNotFoundParams,
@@ -32,7 +32,7 @@ func (s *ClientsService) Get(id string) (*models.Client, error) {
 				fmt.Sprintf("id : %s", id))
 		}
 
-		return nil, httperror.NewHTTPErrorT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	return client, nil
@@ -43,15 +43,31 @@ func (s *ClientsService) GetAll(params map[string]interface{}, sort database.Sor
 	err := models.Repo.Clients().Conditions(params).Order(sort).Find(&clients)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
-			return nil, httperror.NewHTTPErrorT(
+			return nil, httperror.ErrorCauseT(
 				err,
 				http.StatusNotFound,
 				messagesconst.GeneralErrorRegisterNotFound,
 				messagesconst.ClientsClients)
 		}
 
-		return nil, httperror.NewHTTPErrorT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	return clients, nil
+}
+
+func (s *ClientsService) GetAllPaged(params map[string]interface{}, sort database.Sort, pageable database.Pageable) (*database.Page, error) {
+	var clients []models.Client
+	err := models.Repo.Clients().Conditions(params).Order(sort).Pageable(pageable).Find(&clients)
+	if err != nil {
+		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+	}
+
+	var count int64
+	err = models.Repo.Clients().Conditions(params).Count(&count)
+	if err != nil {
+		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+	}
+
+	return database.NewPage(pageable, int(count), clients), nil
 }

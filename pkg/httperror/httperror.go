@@ -38,7 +38,16 @@ func (e *HTTPError) ResponseHeaders() (int, map[string]string) {
 	}
 }
 
-func NewHTTPError(err error, status int, errorDescription string) error {
+// Error Creates an HTTPError
+func Error(status int, errorDescription string) error {
+	return &HTTPError{
+		ErrorDescription: errorDescription,
+		Status:           status,
+	}
+}
+
+// ErrorCase Creates an HTTPError with underliting error
+func ErrorCause(err error, status int, errorDescription string) error {
 	return &HTTPError{
 		Cause:            err,
 		CauseMessage:     err.Error(),
@@ -47,22 +56,26 @@ func NewHTTPError(err error, status int, errorDescription string) error {
 	}
 }
 
-func NewHTTPErrorT(err error, status int, key string, args ...string) error {
-	t := translate(args)
-	a := make([]interface{}, len(t))
-	for i, v := range t {
-		a[i] = v
-	}
+// ErrorT Creates an HTTPError and traslate the key and args
+func ErrorT(status int, key string, args ...string) error {
 	return &HTTPError{
-		Cause:            err,
-		CauseMessage:     err.Error(),
-		ErrorDescription: messages.Get(key, a...),
+		ErrorDescription: messages.Get(key, translate(args)...),
 		Status:           status,
 	}
 }
 
-func translate(args []string) []string {
-	t := []string{}
+// ErrorCauseT Creates an HTTPError with underliting error and traslate the key and args
+func ErrorCauseT(err error, status int, key string, args ...string) error {
+	return &HTTPError{
+		Cause:            err,
+		CauseMessage:     err.Error(),
+		ErrorDescription: messages.Get(key, translate(args)...),
+		Status:           status,
+	}
+}
+
+func translate(args []string) []interface{} {
+	t := []interface{}{}
 	for _, arg := range args {
 		t = append(t, messages.Get(arg))
 	}

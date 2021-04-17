@@ -3,6 +3,7 @@ package clientshand
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"golang-seed/apps/auth/pkg/messagesconst"
 	"golang-seed/apps/auth/pkg/service/clientsserv"
@@ -31,7 +32,7 @@ func (u ClientsHandler) Get(w http.ResponseWriter, r *http.Request) error {
 
 	body, err := json.Marshal(client)
 	if err != nil {
-		return httperror.NewHTTPErrorT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -56,7 +57,7 @@ func (u ClientsHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
 
 	body, err := json.Marshal(clients)
 	if err != nil {
-		return httperror.NewHTTPErrorT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -65,6 +66,53 @@ func (u ClientsHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (u ClientsHandler) GetAllPaged(w http.ResponseWriter, r *http.Request) error {
+	if len(r.URL.Query()["page"]) < 1 {
+		return httperror.ErrorT(http.StatusBadRequest, messagesconst.GeneralErrorRequiredField, "page")
+	}
+
+	if len(r.URL.Query()["size"]) < 1 {
+		return httperror.ErrorT(http.StatusBadRequest, messagesconst.GeneralErrorRequiredField, "size")
+	}
+
+	var err error
+	var pagep int
+	var sizep int
+
+	pagep, err = strconv.Atoi(r.URL.Query()["page"][0])
+	if err != nil {
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
+	}
+
+	sizep, err = strconv.Atoi(r.URL.Query()["size"][0])
+	if err != nil {
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
+	}
+
+	pageable := database.NewPageable(pagep, sizep)
+
+	sortp := r.URL.Query()["sort"]
+	sort := database.NewSort(sortp)
+
+	params := make(map[string]interface{})
+	for k, v := range r.URL.Query() {
+		params[k] = v
+	}
+	delete(params, "sort")
+	delete(params, "page")
+	delete(params, "size")
+
+	clients, err := u.clientsService.GetAllPaged(params, sort, pageable)
+	if err != nil {
+		return err
+	}
+
+	body, err := json.Marshal(clients)
+	if err != nil {
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
 	return nil
 }
 

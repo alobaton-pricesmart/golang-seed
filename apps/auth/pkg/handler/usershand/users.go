@@ -26,7 +26,7 @@ func (u UsersHandler) Get(w http.ResponseWriter, r *http.Request) error {
 
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		return httperror.NewHTTPErrorT(err, http.StatusBadRequest, messagesconst.GeneralErrorInvalidID)
+		return httperror.ErrorCauseT(err, http.StatusBadRequest, messagesconst.GeneralErrorInvalidField, "id")
 	}
 
 	user, err := u.usersService.Get(uid)
@@ -36,7 +36,7 @@ func (u UsersHandler) Get(w http.ResponseWriter, r *http.Request) error {
 
 	body, err := json.Marshal(user)
 	if err != nil {
-		return httperror.NewHTTPErrorT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
 	}
 
 	w.WriteHeader(http.StatusOK)

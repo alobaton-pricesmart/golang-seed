@@ -11,7 +11,7 @@ type Client struct {
 	oauth2.ClientInfo `gorm:"-" json:"-"`
 
 	Code   string `gorm:"primaryKey" json:"code"`
-	Secret string `json:"secret"`
+	Secret string `json:"-"`
 	Domain string `json:"domain"`
 	UserID string `json:"-"`
 }

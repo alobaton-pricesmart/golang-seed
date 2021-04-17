@@ -25,18 +25,22 @@ type (
 	}
 )
 
+// Collection starts a query statement for a given Model
 func (d *Database) Collection(model Model) *Collection {
 	return newCollection(d, model)
 }
 
+// Migrate migrates a model to database
 func (d *Database) Migrate(model Model) {
 	d.db.AutoMigrate(model)
 }
 
+// SetupJoinTable migrates a JoinTable to database.
 func (d *Database) SetupJoinTable(model Model, fieldName string, joinTable Model) {
 	d.db.SetupJoinTable(model, fieldName, joinTable)
 }
 
+// Open open a database connection
 func Open(credentials Credentials, conf Conf) (*Database, error) {
 	database := new(Database)
 	database.debug = conf.Debug
