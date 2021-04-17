@@ -20,10 +20,13 @@ type SettingsRoot struct {
 }
 
 type Database struct {
-	User     string `yaml:"user"`
-	Password string `yaml:"password"`
-	Address  string `yaml:"address"`
-	Name     string `yaml:"name"`
+	User            string `yaml:"user"`
+	Password        string `yaml:"password"`
+	Address         string `yaml:"address"`
+	Name            string `yaml:"name"`
+	MaxOpenConns    int    `yaml:"maxOpenConns"`
+	MaxIdleConns    int    `yaml:"maxIdleConns"`
+	ConnMaxLifetime int    `yaml:"connMaxLifetime"`
 }
 
 func ParseSettings() error {

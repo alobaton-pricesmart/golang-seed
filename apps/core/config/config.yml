@@ -5,3 +5,6 @@ database:
   password: prod-password
   address: db.prod.local:3306
   name: prod-db
+  maxOpenConns: 25
+  maxIdleConns: 25
+  connMaxLifetime: 300000

@@ -5,3 +5,6 @@ database:
   password: dev-password
   address: db.dev.local:3306
   name: dev-db
+  maxOpenConns: 25
+  maxIdleConns: 25
+  connMaxLifetime: 300000

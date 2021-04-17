@@ -33,3 +33,9 @@ Start the database:
 ```bash
 $ docker-compose -f docker-compose.dev.yml up -d db
 ```
+
+Start authentication and authorization server:
+```bash
+$ go run apps/auth/com/auth/main.go
+```
+

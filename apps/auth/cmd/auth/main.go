@@ -65,7 +65,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := messages.Init("apps/auth/config/es.json", "es"); err != nil {
+	if err := messages.Init("apps/auth/config", "es"); err != nil {
 		log.Fatal(err)
 	}
 

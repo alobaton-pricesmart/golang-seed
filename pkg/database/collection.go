@@ -42,7 +42,7 @@ func (c *Collection) Order(sort Sort) *Collection {
 }
 
 func (c *Collection) Conditions(conditions interface{}) *Collection {
-	mapc, ok := conditions.(*map[string]string)
+	mapc, ok := conditions.(map[string]interface{})
 	if ok {
 		c.db = c.db.Where(mapc)
 		return c

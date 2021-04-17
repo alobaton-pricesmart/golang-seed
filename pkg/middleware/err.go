@@ -6,8 +6,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// ClientError is an error whose details to be shared with client.
-type ClientError interface {
+// httpError is an error whose details to be shared with client.
+type httpError interface {
 	Error() string
 	// ResponseBody returns response body.
 	ResponseBody() ([]byte, error)
@@ -29,8 +29,8 @@ func ErrorHandler(next ErrorHandlerFunc) http.Handler {
 		// This is where our error handling logic starts.
 		log.WithField("error", err).Error("an error accured")
 
-		// Check if it is a ClientError.
-		clientError, ok := err.(ClientError)
+		// Check if it is a HttpError.
+		clientError, ok := err.(httpError)
 		if !ok {
 			// If the error is not ClientError, assume that it is ServerError.
 			// return 500 Internal Server Error.

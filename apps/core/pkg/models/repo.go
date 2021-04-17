@@ -20,7 +20,13 @@ func ConnectRepo() error {
 		Collation: "utf8mb4_bin",
 	}
 
-	database, err := database.Open(credentials, server.IsLocal())
+	conf := database.Conf{
+		MaxOpenConns: config.Settings.Database.MaxOpenConns,
+		MaxIdleConns: config.Settings.Database.MaxIdleConns,
+		Debug:        server.IsLocal(),
+	}
+
+	database, err := database.Open(credentials, conf)
 	if err != nil {
 		return errors.Trace(err)
 	}

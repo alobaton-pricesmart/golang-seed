@@ -3,6 +3,7 @@ package httperror
 import (
 	"encoding/json"
 	"fmt"
+	"golang-seed/pkg/messages"
 )
 
 // HTTPError implements ClientError interface.
@@ -44,4 +45,26 @@ func NewHTTPError(err error, status int, errorDescription string) error {
 		ErrorDescription: errorDescription,
 		Status:           status,
 	}
+}
+
+func NewHTTPErrorT(err error, status int, key string, args ...string) error {
+	t := translate(args)
+	a := make([]interface{}, len(t))
+	for i, v := range t {
+		a[i] = v
+	}
+	return &HTTPError{
+		Cause:            err,
+		CauseMessage:     err.Error(),
+		ErrorDescription: messages.Get(key, a...),
+		Status:           status,
+	}
+}
+
+func translate(args []string) []string {
+	t := []string{}
+	for _, arg := range args {
+		t = append(t, messages.Get(arg))
+	}
+	return t
 }

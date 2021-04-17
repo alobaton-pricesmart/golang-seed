@@ -1,9 +1,13 @@
 {
     "general": {
         "error": {
+            "internalServerError": "Error interno del servidor",
             "marshal": "Error serializando la respuesta",
-            "getting": "Error obteniendo %s",
-            "invalidID": "id es invalido"
+            "invalidID": "id es invalido",
+            "registerNotFound": "No se ha encontrado registros de %s",
+            "registerNotFoundParams": "No se ha encontrado registros de %s con los parametros de búsqueda %v",
+            "fieldRequired": "El campos %s es requerido",
+            "accessingDatabase": "Error accediendo a la base de datos"
         }
     },
     "users": {
