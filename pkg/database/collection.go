@@ -101,3 +101,9 @@ func (c *Collection) CreateAll(instance interface{}) error {
 	result := c.db.Create(instance)
 	return result.Error
 }
+
+// Delete perform a delete.
+func (c *Collection) Delete(instance Model) error {
+	result := c.db.Delete(instance)
+	return result.Error
+}

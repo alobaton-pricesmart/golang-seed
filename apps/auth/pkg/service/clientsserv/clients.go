@@ -71,3 +71,24 @@ func (s *ClientsService) GetAllPaged(params map[string]interface{}, sort databas
 
 	return database.NewPage(pageable, int(count), clients), nil
 }
+
+func (s *ClientsService) Delete(id string) error {
+	client := &models.Client{
+		Code: id,
+	}
+	err := models.Repo.Clients().Delete(client)
+	if err != nil {
+		if errors.Is(err, database.ErrRecordNotFound) {
+			return httperror.ErrorCauseT(
+				err,
+				http.StatusNotFound,
+				messagesconst.GeneralErrorRegisterNotFoundParams,
+				messagesconst.ClientsClients,
+				fmt.Sprintf("id : %s", id))
+		}
+
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+	}
+
+	return nil
+}

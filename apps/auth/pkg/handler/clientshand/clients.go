@@ -125,5 +125,14 @@ func (u ClientsHandler) Update(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (u ClientsHandler) Delete(w http.ResponseWriter, r *http.Request) error {
+	pathVars := mux.Vars(r)
+	id := pathVars["id"]
+
+	err := u.clientsService.Delete(id)
+	if err != nil {
+		return err
+	}
+
+	w.WriteHeader(http.StatusOK)
 	return nil
 }
