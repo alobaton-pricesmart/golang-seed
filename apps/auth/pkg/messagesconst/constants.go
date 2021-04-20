@@ -11,6 +11,8 @@ const (
 	GeneralErrorRegisterAlreadyExists  = "general.error.registerAlreadyExists"
 
 	OAuthInvalidUsernamePassword = "oauth.invalidUsernamePassword"
+	OauthInvalidToken            = "oauth.invalidToken"
+	OAuthPermissionDenied        = "oauth.permissionDenied"
 
 	UsersUser  = "users.user"
 	UsersUsers = "users.users"
