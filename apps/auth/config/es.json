@@ -12,7 +12,9 @@
         }
     },
     "oauth": {
-        "invalidUsernamePassword": "Nombre de usuario o contraseña invalidos"
+        "invalidUsernamePassword": "Nombre de usuario o contraseña invalidos",
+        "invalidToken": "Token invalido",
+        "permissionDenied": "No tiene permisos para ejecutar la operación"
     },
     "users": {
         "user": "Usuario",

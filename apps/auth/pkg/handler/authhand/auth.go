@@ -7,14 +7,25 @@ import (
 	"golang-seed/pkg/httperror"
 	"net/http"
 
+	"github.com/go-oauth2/oauth2/v4/errors"
 	"github.com/go-oauth2/oauth2/v4/server"
 	"golang.org/x/crypto/bcrypt"
 )
 
-type AuthHandler struct {
-	srv          *server.Server
-	usersService *usersserv.UsersService
-}
+type (
+	AuthHandler struct {
+		srv          *server.Server
+		usersService *usersserv.UsersService
+	}
+	// httpError is an error whose details to be shared with client.
+	httpError interface {
+		Error() string
+		// ResponseBody returns response body.
+		ResponseBody() ([]byte, error)
+		// ResponseHeaders returns http status code and headers.
+		ResponseHeaders() (int, map[string]string)
+	}
+)
 
 func NewAuthHandler(srv *server.Server, usersService *usersserv.UsersService) *AuthHandler {
 	return &AuthHandler{srv, usersService}
@@ -47,4 +58,23 @@ func (a AuthHandler) PasswordAuthorizationHandler(username, password string) (st
 	}
 
 	return user.ID, nil
+}
+
+func (a AuthHandler) InternalErrorHandler(err error) *errors.Response {
+	httpError, ok := err.(httpError)
+	if !ok {
+		return nil
+	}
+
+	status, _ := httpError.ResponseHeaders()
+	return &errors.Response{
+		Error:       err,
+		Description: httpError.Error(),
+		StatusCode:  status,
+	}
+}
+
+func (a AuthHandler) ValidateToken(r *http.Request) error {
+	_, err := a.srv.ValidationBearerToken(r)
+	return err
 }
