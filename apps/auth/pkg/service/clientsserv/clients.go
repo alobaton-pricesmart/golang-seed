@@ -38,11 +38,11 @@ func (s *ClientsService) GetByID(id string) (*models.Client, error) {
 	return client, nil
 }
 
-func (s *ClientsService) Get(model *models.Client) (*models.Client, error) {
+func (s *ClientsService) Get(model *models.Client) error {
 	err := models.Repo.Clients().Conditions(model).Get(model)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
-			return nil, httperror.ErrorCauseT(
+			return httperror.ErrorCauseT(
 				err,
 				http.StatusNotFound,
 				messagesconst.GeneralErrorRegisterNotFoundParams,
@@ -50,10 +50,10 @@ func (s *ClientsService) Get(model *models.Client) (*models.Client, error) {
 				model.String())
 		}
 
-		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
-	return model, nil
+	return nil
 }
 
 func (s *ClientsService) GetAll(params map[string]interface{}, sort database.Sort) ([]*models.Client, error) {
@@ -90,14 +90,14 @@ func (s *ClientsService) GetAllPaged(params map[string]interface{}, sort databas
 	return database.NewPage(pageable, int(count), clients), nil
 }
 
-func (s *ClientsService) Create(model *models.Client) (*models.Client, error) {
+func (s *ClientsService) Create(model *models.Client) error {
 	exists, err := models.Repo.Clients().Exists(model)
 	if err != nil {
-		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	if exists {
-		return nil, httperror.ErrorT(
+		return httperror.ErrorT(
 			http.StatusConflict,
 			messagesconst.GeneralErrorRegisterAlreadyExists,
 			messagesconst.ClientsClient,
@@ -106,23 +106,21 @@ func (s *ClientsService) Create(model *models.Client) (*models.Client, error) {
 
 	err = models.Repo.Clients().Create(model)
 	if err != nil {
-		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
-	return model, nil
+	return nil
 }
 
-func (s *ClientsService) Update(model *models.Client) (*models.Client, error) {
-	client := &models.Client{
-		Code: model.Code,
-	}
+func (s *ClientsService) Update(model *models.Client) error {
+	client := &models.Client{Code: model.Code}
 	exists, err := models.Repo.Clients().Exists(client)
 	if err != nil {
-		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	if !exists {
-		return nil, httperror.ErrorT(
+		return httperror.ErrorT(
 			http.StatusNotFound,
 			messagesconst.GeneralErrorRegisterNotFoundParams,
 			messagesconst.ClientsClients,
@@ -130,12 +128,12 @@ func (s *ClientsService) Update(model *models.Client) (*models.Client, error) {
 	}
 
 	model.CreatedAt = client.CreatedAt
-	err = models.Repo.Clients().Conditions(client).Update(model)
+	err = models.Repo.Clients().Conditions(&models.Client{Code: model.Code}).Update(model)
 	if err != nil {
-		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
-	return model, nil
+	return nil
 }
 
 func (s *ClientsService) Delete(id string) error {

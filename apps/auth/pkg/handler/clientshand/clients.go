@@ -141,7 +141,7 @@ func (h ClientsHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		return httperror.ErrorCauseT(err, http.StatusBadRequest, messagesconst.GeneralErrorMarshal)
 	}
 
-	client, err = h.clientsService.Create(client)
+	err = h.clientsService.Create(client)
 	if err != nil {
 		return err
 	}
@@ -168,7 +168,7 @@ func (h ClientsHandler) Update(w http.ResponseWriter, r *http.Request) error {
 		return httperror.ErrorCauseT(err, http.StatusBadRequest, messagesconst.GeneralErrorMarshal)
 	}
 
-	client, err = h.clientsService.Update(client)
+	err = h.clientsService.Update(client)
 	if err != nil {
 		return err
 	}
