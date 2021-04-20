@@ -8,6 +8,7 @@ import (
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 // Database represents a reusable connection to a remote MySQL database.
@@ -49,15 +50,29 @@ func Open(credentials Credentials, conf Conf) (*Database, error) {
 		log.WithField("credentials", credentials.String()).Debug("Open database connection")
 	}
 
+	l := logger.New(
+		log.WithFields(log.Fields{}),
+		logger.Config{
+			SlowThreshold: time.Second,
+			LogLevel:      logger.Silent,
+			Colorful:      true,
+		},
+	)
+
 	dsn := credentials.String()
 	var err error
 	database.db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		SkipDefaultTransaction: true,
 		PrepareStmt:            true,
 		DisableAutomaticPing:   true,
+		Logger:                 l,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("error opening db : %v", err)
+	}
+
+	if database.debug {
+		database.db = database.db.Debug()
 	}
 
 	db, err := database.db.DB()

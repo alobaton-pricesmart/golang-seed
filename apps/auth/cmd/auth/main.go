@@ -12,7 +12,9 @@ import (
 	"golang-seed/pkg/messages"
 	"golang-seed/pkg/middleware"
 	"golang-seed/pkg/server"
+	"net/http"
 
+	"github.com/go-oauth2/oauth2/v4"
 	"github.com/go-oauth2/oauth2/v4/manage"
 	oauth2server "github.com/go-oauth2/oauth2/v4/server"
 	"github.com/gorilla/mux"
@@ -20,6 +22,26 @@ import (
 )
 
 func registerRoutes(r *mux.Router) {
+	clientsService := clientsserv.NewClientsService()
+	clientsHandler := clientshand.NewClientsHandler(clientsService)
+	s := r.PathPrefix("/clients").Subrouter()
+	s.Handle("/{id}", middleware.ErrorHandler(clientsHandler.Get)).Methods(http.MethodGet)
+	s.Handle("/search/list", middleware.ErrorHandler(clientsHandler.GetAll)).Methods(http.MethodGet)
+	s.Handle("/search/paged", middleware.ErrorHandler(clientsHandler.GetAllPaged)).Methods(http.MethodGet)
+	s.Handle("/", middleware.ErrorHandler(clientsHandler.Create)).Methods(http.MethodPost)
+	s.Handle("/{id}", middleware.ErrorHandler(clientsHandler.Update)).Methods(http.MethodPut)
+	s.Handle("/{id}", middleware.ErrorHandler(clientsHandler.Delete)).Methods(http.MethodDelete)
+
+	usersService := usersserv.NewUsersService()
+	usersHandler := usershand.NewUsersHandler(usersService)
+	s = r.PathPrefix("/users").Subrouter()
+	s.Handle("/{id}", middleware.ErrorHandler(usersHandler.Get)).Methods(http.MethodGet)
+	s.Handle("/search/list", middleware.ErrorHandler(usersHandler.GetAll)).Methods(http.MethodGet)
+	s.Handle("/search/paged", middleware.ErrorHandler(usersHandler.GetAllPaged)).Methods(http.MethodGet)
+	s.Handle("/", middleware.ErrorHandler(usersHandler.Create)).Methods(http.MethodPost)
+	s.Handle("/{id}", middleware.ErrorHandler(usersHandler.Update)).Methods(http.MethodPut)
+	s.Handle("/{id}", middleware.ErrorHandler(usersHandler.Delete)).Methods(http.MethodDelete)
+
 	manager := manage.NewDefaultManager()
 	// token store
 	manager.MustTokenStorage(store.NewTokenStore())
@@ -30,30 +52,14 @@ func registerRoutes(r *mux.Router) {
 	// auth server
 	srv := oauth2server.NewDefaultServer(manager)
 	srv.SetAllowGetAccessRequest(true)
-	srv.SetClientInfoHandler(oauth2server.ClientFormHandler)
+	srv.SetAllowedGrantType(oauth2.PasswordCredentials, oauth2.ClientCredentials, oauth2.Refreshing)
+	srv.SetClientInfoHandler(oauth2server.ClientBasicHandler)
 
-	authHandler := authhand.NewAuthHandler(srv)
+	authHandler := authhand.NewAuthHandler(srv, usersService)
 	r.HandleFunc("/oauth/authorize", authHandler.Authorize)
 	r.HandleFunc("/oauth/token", authHandler.Token)
 
-	usersService := usersserv.NewUsersService()
-	usersHandler := usershand.NewUsersHandler(usersService)
-	r.Handle("/users/{id}", middleware.ErrorHandler(usersHandler.Get)).Methods("GET")
-	r.Handle("/users/search/list", middleware.ErrorHandler(usersHandler.GetAll)).Methods("GET")
-	r.Handle("/users/search/paged", middleware.ErrorHandler(usersHandler.GetAllPaged)).Methods("GET")
-	r.Handle("/users", middleware.ErrorHandler(usersHandler.Create)).Methods("POST")
-	r.Handle("/users/{id}", middleware.ErrorHandler(usersHandler.Update)).Methods("PUT")
-	r.Handle("/users/{id}", middleware.ErrorHandler(usersHandler.Delete)).Methods("DELETE")
-
-	clientsService := clientsserv.NewClientsService()
-	clientsHandler := clientshand.NewClientsHandler(clientsService)
-	r = r.PathPrefix("/clients").Subrouter()
-	r.Handle("/{id}", middleware.ErrorHandler(clientsHandler.Get)).Methods("GET")
-	r.Handle("/search/list", middleware.ErrorHandler(clientsHandler.GetAll)).Methods("GET")
-	r.Handle("/search/paged", middleware.ErrorHandler(clientsHandler.GetAllPaged)).Methods("GET")
-	r.Handle("/", middleware.ErrorHandler(clientsHandler.Create)).Methods("POST")
-	r.Handle("/{id}", middleware.ErrorHandler(clientsHandler.Update)).Methods("PUT")
-	r.Handle("/{id}", middleware.ErrorHandler(clientsHandler.Delete)).Methods("DELETE")
+	srv.SetPasswordAuthorizationHandler(authHandler.PasswordAuthorizationHandler)
 }
 
 func main() {

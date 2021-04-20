@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"golang-seed/apps/auth/pkg/messagesconst"
+	"golang-seed/apps/auth/pkg/models"
 	"golang-seed/apps/auth/pkg/service/clientsserv"
 	"golang-seed/pkg/database"
 	"golang-seed/pkg/httperror"
@@ -21,14 +22,16 @@ func NewClientsHandler(clientsService *clientsserv.ClientsService) *ClientsHandl
 	return &ClientsHandler{clientsService: clientsService}
 }
 
-func (u ClientsHandler) Get(w http.ResponseWriter, r *http.Request) error {
+func (h ClientsHandler) Get(w http.ResponseWriter, r *http.Request) error {
 	pathVars := mux.Vars(r)
 	id := pathVars["id"]
 
-	client, err := u.clientsService.Get(id)
+	client, err := h.clientsService.GetByID(id)
 	if err != nil {
 		return err
 	}
+
+	client.Secret = ""
 
 	body, err := json.Marshal(client)
 	if err != nil {
@@ -40,7 +43,7 @@ func (u ClientsHandler) Get(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (u ClientsHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
+func (h ClientsHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
 	sparams := r.URL.Query()["sort"]
 	sort := database.NewSort(sparams)
 
@@ -50,9 +53,13 @@ func (u ClientsHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
 	}
 	delete(params, "sort")
 
-	clients, err := u.clientsService.GetAll(params, sort)
+	clients, err := h.clientsService.GetAll(params, sort)
 	if err != nil {
 		return err
+	}
+
+	for _, client := range clients {
+		client.Secret = ""
 	}
 
 	body, err := json.Marshal(clients)
@@ -65,7 +72,7 @@ func (u ClientsHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (u ClientsHandler) GetAllPaged(w http.ResponseWriter, r *http.Request) error {
+func (h ClientsHandler) GetAllPaged(w http.ResponseWriter, r *http.Request) error {
 	if len(r.URL.Query()["page"]) < 1 {
 		return httperror.ErrorT(http.StatusBadRequest, messagesconst.GeneralErrorRequiredField, "page")
 	}
@@ -101,9 +108,17 @@ func (u ClientsHandler) GetAllPaged(w http.ResponseWriter, r *http.Request) erro
 	delete(params, "page")
 	delete(params, "size")
 
-	clients, err := u.clientsService.GetAllPaged(params, sort, pageable)
+	page, err := h.clientsService.GetAllPaged(params, sort, pageable)
 	if err != nil {
 		return err
+	}
+
+	clients, ok := page.Content.([]*models.Client)
+	if ok {
+		for _, client := range clients {
+			client.Secret = ""
+		}
+		page.Content = clients
 	}
 
 	body, err := json.Marshal(clients)
@@ -116,19 +131,65 @@ func (u ClientsHandler) GetAllPaged(w http.ResponseWriter, r *http.Request) erro
 	return nil
 }
 
-func (u ClientsHandler) Create(w http.ResponseWriter, r *http.Request) error {
+func (h ClientsHandler) Create(w http.ResponseWriter, r *http.Request) error {
+	client := &models.Client{}
+	decoder := json.NewDecoder(r.Body)
+	defer r.Body.Close()
+
+	err := decoder.Decode(client)
+	if err != nil {
+		return httperror.ErrorCauseT(err, http.StatusBadRequest, messagesconst.GeneralErrorMarshal)
+	}
+
+	client, err = h.clientsService.Create(client)
+	if err != nil {
+		return err
+	}
+
+	client.Secret = ""
+
+	body, err := json.Marshal(client)
+	if err != nil {
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
 	return nil
 }
 
-func (u ClientsHandler) Update(w http.ResponseWriter, r *http.Request) error {
+func (h ClientsHandler) Update(w http.ResponseWriter, r *http.Request) error {
+	client := &models.Client{}
+	decoder := json.NewDecoder(r.Body)
+	defer r.Body.Close()
+
+	err := decoder.Decode(client)
+	if err != nil {
+		return httperror.ErrorCauseT(err, http.StatusBadRequest, messagesconst.GeneralErrorMarshal)
+	}
+
+	client, err = h.clientsService.Update(client)
+	if err != nil {
+		return err
+	}
+
+	client.Secret = ""
+
+	body, err := json.Marshal(client)
+	if err != nil {
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
 	return nil
 }
 
-func (u ClientsHandler) Delete(w http.ResponseWriter, r *http.Request) error {
+func (h ClientsHandler) Delete(w http.ResponseWriter, r *http.Request) error {
 	pathVars := mux.Vars(r)
 	id := pathVars["id"]
 
-	err := u.clientsService.Delete(id)
+	err := h.clientsService.Delete(id)
 	if err != nil {
 		return err
 	}

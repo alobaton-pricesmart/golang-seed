@@ -7,8 +7,12 @@
             "registerNotFoundParams": "No se ha encontrado registros de %s con los parametros de búsqueda %v",
             "requiredField": "El campo %s es requerido",
             "invalidField": "El campo %s es invalido",
-            "accessingDatabase": "Error accediendo a la base de datos"
+            "accessingDatabase": "Error accediendo a la base de datos",
+            "registerAlreadyExists": "Ya existe creado un registro de %s con ID %s"
         }
+    },
+    "oauth": {
+        "invalidUsernamePassword": "Nombre de usuario o contraseña invalidos"
     },
     "users": {
         "user": "Usuario",

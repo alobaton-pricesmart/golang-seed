@@ -5,8 +5,8 @@ import "golang-seed/pkg/database"
 type UserRole struct {
 	database.AuditModel
 
-	UserID   uint64 `gorm:"primaryKey" json:"userID"`
-	RoleCode string `gorm:"primaryKey" json:"roleCode"`
+	UserID   uint64 `gorm:"primaryKey"`
+	RoleCode string `gorm:"primaryKey"`
 }
 
 func (u UserRole) TableName() string {

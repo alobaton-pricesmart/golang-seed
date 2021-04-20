@@ -20,7 +20,7 @@ func NewUsersHandler(usersService *usersserv.UsersService) *UsersHandler {
 	return &UsersHandler{usersService: usersService}
 }
 
-func (u UsersHandler) Get(w http.ResponseWriter, r *http.Request) error {
+func (h UsersHandler) Get(w http.ResponseWriter, r *http.Request) error {
 	pathVars := mux.Vars(r)
 	id := pathVars["id"]
 
@@ -29,10 +29,12 @@ func (u UsersHandler) Get(w http.ResponseWriter, r *http.Request) error {
 		return httperror.ErrorCauseT(err, http.StatusBadRequest, messagesconst.GeneralErrorInvalidField, "id")
 	}
 
-	user, err := u.usersService.Get(uid)
+	user, err := h.usersService.GetByID(uid)
 	if err != nil {
 		return err
 	}
+
+	user.Password = ""
 
 	body, err := json.Marshal(user)
 	if err != nil {
@@ -44,22 +46,22 @@ func (u UsersHandler) Get(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (u UsersHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
+func (h UsersHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (u UsersHandler) GetAllPaged(w http.ResponseWriter, r *http.Request) error {
+func (h UsersHandler) GetAllPaged(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (u UsersHandler) Create(w http.ResponseWriter, r *http.Request) error {
+func (h UsersHandler) Create(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (u UsersHandler) Update(w http.ResponseWriter, r *http.Request) error {
+func (h UsersHandler) Update(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (u UsersHandler) Delete(w http.ResponseWriter, r *http.Request) error {
+func (h UsersHandler) Delete(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }

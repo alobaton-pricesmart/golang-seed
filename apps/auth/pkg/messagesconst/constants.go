@@ -8,6 +8,9 @@ const (
 	GeneralErrorRequiredField          = "general.error.requiredField"
 	GeneralErrorInvalidField           = "general.error.invalidField"
 	GeneralErrorAccessingDatabase      = "general.error.accessingDatabase"
+	GeneralErrorRegisterAlreadyExists  = "general.error.registerAlreadyExists"
+
+	OAuthInvalidUsernamePassword = "oauth.invalidUsernamePassword"
 
 	UsersUser  = "users.user"
 	UsersUsers = "users.users"
