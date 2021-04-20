@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"fmt"
 	"golang-seed/pkg/database"
 	"strings"
@@ -13,10 +12,10 @@ type Client struct {
 	database.AuditModel
 	oauth2.ClientInfo `gorm:"-" json:"-"`
 
-	Code   string         `gorm:"primaryKey" json:"code"`
-	Secret string         `json:"secret,omitempty"`
-	Domain sql.NullString `json:"domain"`
-	UserID sql.NullString `json:"-"`
+	Code   string              `gorm:"primaryKey" json:"code"`
+	Secret string              `json:"secret,omitempty"`
+	Domain database.NullString `json:"domain"`
+	UserID database.NullString `json:"-"`
 }
 
 // Implements oauth2.ClientInfo interface

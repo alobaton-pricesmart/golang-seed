@@ -2,12 +2,12 @@ package store
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/go-oauth2/oauth2/v4"
 	"github.com/go-oauth2/oauth2/v4/store"
 
 	"golang-seed/apps/auth/pkg/models"
+	"golang-seed/pkg/database"
 )
 
 // NewClientStore creates client store
@@ -22,8 +22,9 @@ func serializeClientInfo(id string, cli oauth2.ClientInfo) *models.Client {
 	client := &models.Client{
 		Code:   id,
 		Secret: cli.GetSecret(),
-		Domain: sql.NullString{String: cli.GetDomain()},
+		Domain: database.NullString{},
 	}
+	client.Domain.String = cli.GetDomain()
 
 	return client
 }

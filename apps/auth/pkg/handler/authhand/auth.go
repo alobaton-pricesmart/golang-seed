@@ -1,7 +1,6 @@
 package authhand
 
 import (
-	"fmt"
 	"golang-seed/apps/auth/pkg/messagesconst"
 	"golang-seed/apps/auth/pkg/models"
 	"golang-seed/apps/auth/pkg/service/usersserv"
@@ -33,24 +32,19 @@ func (a AuthHandler) Token(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a AuthHandler) PasswordAuthorizationHandler(username, password string) (string, error) {
-	fmt.Println(username, password)
 	var err error
 	user := &models.User{
 		Nickname: username,
 	}
-	user, err = a.usersService.Get(user)
+	err = a.usersService.Get(user)
 	if err != nil {
 		return "", httperror.ErrorCauseT(err, http.StatusUnauthorized, messagesconst.OAuthInvalidUsernamePassword)
 	}
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
-		return "", err
+		return "", httperror.ErrorT(http.StatusUnauthorized, messagesconst.OAuthInvalidUsernamePassword)
 	}
 
-	if user.Password != string(hash) {
-		return "", httperror.ErrorCauseT(err, http.StatusUnauthorized, messagesconst.OAuthInvalidUsernamePassword)
-	}
-
-	return user.ID.String(), nil
+	return user.ID, nil
 }

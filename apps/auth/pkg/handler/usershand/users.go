@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"golang-seed/apps/auth/pkg/messagesconst"
+	"golang-seed/apps/auth/pkg/models"
 	"golang-seed/apps/auth/pkg/service/usersserv"
 	"golang-seed/pkg/httperror"
 
@@ -24,12 +25,12 @@ func (h UsersHandler) Get(w http.ResponseWriter, r *http.Request) error {
 	pathVars := mux.Vars(r)
 	id := pathVars["id"]
 
-	uid, err := uuid.Parse(id)
+	_, err := uuid.Parse(id)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusBadRequest, messagesconst.GeneralErrorInvalidField, "id")
 	}
 
-	user, err := h.usersService.GetByID(uid)
+	user, err := h.usersService.GetByID(id)
 	if err != nil {
 		return err
 	}
@@ -55,6 +56,30 @@ func (h UsersHandler) GetAllPaged(w http.ResponseWriter, r *http.Request) error 
 }
 
 func (h UsersHandler) Create(w http.ResponseWriter, r *http.Request) error {
+	user := &models.User{}
+	decoder := json.NewDecoder(r.Body)
+	defer r.Body.Close()
+
+	err := decoder.Decode(user)
+	if err != nil {
+		return httperror.ErrorCauseT(err, http.StatusBadRequest, messagesconst.GeneralErrorMarshal)
+	}
+
+	user.ID = uuid.NewString()
+	err = h.usersService.Create(user)
+	if err != nil {
+		return err
+	}
+
+	user.Password = ""
+
+	body, err := json.Marshal(user)
+	if err != nil {
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
 	return nil
 }
 

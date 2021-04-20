@@ -33,8 +33,7 @@ func ConnectRepo() error {
 
 	Repo = &Repository{database}
 
-	/**
-	TODO(alobaton): Create a migrations cmd
+	// TODO(alobaton): Create a migrations cmd
 	Repo.database.Migrate(new(Client))
 	Repo.database.Migrate(new(Permission))
 	Repo.database.Migrate(new(Role))
@@ -43,7 +42,6 @@ func ConnectRepo() error {
 	Repo.database.Migrate(new(User))
 	Repo.database.Migrate(new(UserRole))
 	Repo.database.SetupJoinTable(new(User), "UserRoles", new(UserRole))
-	*/
 
 	return nil
 }
