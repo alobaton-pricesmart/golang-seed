@@ -17,7 +17,7 @@ func NewClientsService() *ClientsService {
 	return &ClientsService{}
 }
 
-func (s *ClientsService) GetByID(id string) (*models.Client, error) {
+func (s ClientsService) GetByID(id string) (*models.Client, error) {
 	client := &models.Client{
 		Code: id,
 	}
@@ -38,7 +38,7 @@ func (s *ClientsService) GetByID(id string) (*models.Client, error) {
 	return client, nil
 }
 
-func (s *ClientsService) Get(model *models.Client) error {
+func (s ClientsService) Get(model *models.Client) error {
 	err := models.Repo.Clients().Conditions(model).Get(model)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
@@ -56,7 +56,7 @@ func (s *ClientsService) Get(model *models.Client) error {
 	return nil
 }
 
-func (s *ClientsService) GetAll(params map[string]interface{}, sort database.Sort) ([]*models.Client, error) {
+func (s ClientsService) GetAll(params map[string]interface{}, sort database.Sort) ([]*models.Client, error) {
 	var clients []*models.Client
 	err := models.Repo.Clients().Conditions(params).Order(sort).Find(&clients)
 	if err != nil {
@@ -74,7 +74,7 @@ func (s *ClientsService) GetAll(params map[string]interface{}, sort database.Sor
 	return clients, nil
 }
 
-func (s *ClientsService) GetAllPaged(params map[string]interface{}, sort database.Sort, pageable database.Pageable) (*database.Page, error) {
+func (s ClientsService) GetAllPaged(params map[string]interface{}, sort database.Sort, pageable database.Pageable) (*database.Page, error) {
 	var clients []*models.Client
 	err := models.Repo.Clients().Conditions(params).Order(sort).Pageable(pageable).Find(&clients)
 	if err != nil {
@@ -90,7 +90,7 @@ func (s *ClientsService) GetAllPaged(params map[string]interface{}, sort databas
 	return database.NewPage(pageable, int(count), clients), nil
 }
 
-func (s *ClientsService) Create(model *models.Client) error {
+func (s ClientsService) Create(model *models.Client) error {
 	exists, err := models.Repo.Clients().Exists(model)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
@@ -112,7 +112,7 @@ func (s *ClientsService) Create(model *models.Client) error {
 	return nil
 }
 
-func (s *ClientsService) Update(model *models.Client) error {
+func (s ClientsService) Update(model *models.Client) error {
 	client := &models.Client{Code: model.Code}
 	exists, err := models.Repo.Clients().Exists(client)
 	if err != nil {
@@ -136,7 +136,7 @@ func (s *ClientsService) Update(model *models.Client) error {
 	return nil
 }
 
-func (s *ClientsService) Delete(id string) error {
+func (s ClientsService) Delete(id string) error {
 	model := &models.Client{
 		Code: id,
 	}

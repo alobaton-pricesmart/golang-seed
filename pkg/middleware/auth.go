@@ -7,42 +7,43 @@ import (
 )
 
 type (
-	// ValidateTokenFunc
+	// ValidateTokenFunc type to define a function that gets the token from http.Request and
 	ValidateTokenFunc func(*http.Request) error
 
-	ValidateTokenPermissionFunc func(*http.Request, string) error
+	// ValidatePermissionFunc
+	ValidatePermissionFunc func(*http.Request, string) error
 )
 
-func AuthorizeHandler(next http.Handler, permission string, vtpf ValidateTokenPermissionFunc) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		err := vtpf(r, permission)
+func AuthenticationHandler(fn ValidateTokenFunc) func(h http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			err := fn(r)
 
-		if err == nil {
-			next.ServeHTTP(w, r)
-			return
-		}
+			if err == nil {
+				next.ServeHTTP(w, r)
+				return
+			}
 
-		log.WithField("error", err).Error("an error accured")
+			log.WithField("error", err).Error("an error accured")
 
-		writeError(w, err)
+			writeError(w, err)
+		})
 	}
-
-	return http.HandlerFunc(fn)
 }
 
-func AuthenticationHandler(next http.Handler, vtf ValidateTokenFunc) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		err := vtf(r)
+func AuthorizeHandler(permission string, fn ValidatePermissionFunc) func(h http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			err := fn(r, permission)
 
-		if err == nil {
-			next.ServeHTTP(w, r)
-			return
-		}
+			if err == nil {
+				next.ServeHTTP(w, r)
+				return
+			}
 
-		log.WithField("error", err).Error("an error accured")
+			log.WithField("error", err).Error("an error accured")
 
-		writeError(w, err)
+			writeError(w, err)
+		})
 	}
-
-	return http.HandlerFunc(fn)
 }

@@ -21,6 +21,27 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+func main() {
+	if err := config.ParseSettings(); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := models.ConnectRepo(); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := messages.Init("apps/auth/config", "es"); err != nil {
+		log.Fatal(err)
+	}
+
+	server := server.Init(config.Settings.Name, config.Settings.Port)
+	server.ConfigureRouting()
+
+	registerRoutes(server.RoutingRouter())
+
+	server.Run()
+}
+
 func registerRoutes(r *mux.Router) {
 	// Set up your services first.
 	clientsService := clientsserv.NewClientsService()
@@ -53,41 +74,58 @@ func registerRoutes(r *mux.Router) {
 	// clients handler
 	clientsHandler := clientshand.NewClientsHandler(clientsService)
 	s := r.PathPrefix("/clients").Subrouter()
-	s.Handle("/{id}", middleware.AuthenticationHandler(middleware.ErrorHandler(clientsHandler.Get), authHandler.ValidateToken)).Methods(http.MethodGet)
-	s.Handle("/search/list", middleware.ErrorHandler(clientsHandler.GetAll)).Methods(http.MethodGet)
-	s.Handle("/search/paged", middleware.ErrorHandler(clientsHandler.GetAllPaged)).Methods(http.MethodGet)
-	s.Handle("/", middleware.ErrorHandler(clientsHandler.Create)).Methods(http.MethodPost)
-	s.Handle("/{id}", middleware.ErrorHandler(clientsHandler.Update)).Methods(http.MethodPut)
-	s.Handle("/{id}", middleware.ErrorHandler(clientsHandler.Delete)).Methods(http.MethodDelete)
+	s.Use(middleware.AuthenticationHandler(authHandler.ValidateToken))
+	s.Handle("/{id}", middleware.Middleware(
+		middleware.ErrorHandler(clientsHandler.Get),
+		middleware.AuthorizeHandler("read:client", authHandler.ValidatePermission)),
+	).Methods(http.MethodGet)
+	s.Handle("/search/list", middleware.Middleware(
+		middleware.ErrorHandler(clientsHandler.GetAll),
+		middleware.AuthorizeHandler("read:clients", authHandler.ValidatePermission)),
+	).Methods(http.MethodGet)
+	s.Handle("/search/paged", middleware.Middleware(
+		middleware.ErrorHandler(clientsHandler.GetAllPaged),
+		middleware.AuthorizeHandler("read:clients", authHandler.ValidatePermission)),
+	).Methods(http.MethodGet)
+	s.Handle("", middleware.Middleware(
+		middleware.ErrorHandler(clientsHandler.Create),
+		middleware.AuthorizeHandler("create:client", authHandler.ValidatePermission)),
+	).Methods(http.MethodPost)
+	s.Handle("/{id}", middleware.Middleware(
+		middleware.ErrorHandler(clientsHandler.Update),
+		middleware.AuthorizeHandler("update:client", authHandler.ValidatePermission)),
+	).Methods(http.MethodPut)
+	s.Handle("/{id}", middleware.Middleware(
+		middleware.ErrorHandler(clientsHandler.Delete),
+		middleware.AuthorizeHandler("delete:client", authHandler.ValidatePermission)),
+	).Methods(http.MethodDelete)
 
 	// users handler
 	usersHandler := usershand.NewUsersHandler(usersService)
 	s = r.PathPrefix("/users").Subrouter()
-	s.Handle("/{id}", middleware.ErrorHandler(usersHandler.Get)).Methods(http.MethodGet)
-	s.Handle("/search/list", middleware.ErrorHandler(usersHandler.GetAll)).Methods(http.MethodGet)
-	s.Handle("/search/paged", middleware.ErrorHandler(usersHandler.GetAllPaged)).Methods(http.MethodGet)
-	s.Handle("/", middleware.ErrorHandler(usersHandler.Create)).Methods(http.MethodPost)
-	s.Handle("/{id}", middleware.ErrorHandler(usersHandler.Update)).Methods(http.MethodPut)
-	s.Handle("/{id}", middleware.ErrorHandler(usersHandler.Delete)).Methods(http.MethodDelete)
-}
-
-func main() {
-	if err := config.ParseSettings(); err != nil {
-		log.Fatal(err)
-	}
-
-	if err := models.ConnectRepo(); err != nil {
-		log.Fatal(err)
-	}
-
-	if err := messages.Init("apps/auth/config", "es"); err != nil {
-		log.Fatal(err)
-	}
-
-	server := server.Init(config.Settings.Name, config.Settings.Port)
-	server.ConfigureRouting()
-
-	registerRoutes(server.RoutingRouter())
-
-	server.Run()
+	s.Use(middleware.AuthenticationHandler(authHandler.ValidateToken))
+	s.Handle("/{id}", middleware.Middleware(
+		middleware.ErrorHandler(usersHandler.Get),
+		middleware.AuthorizeHandler("get:user", authHandler.ValidatePermission)),
+	).Methods(http.MethodGet)
+	s.Handle("/search/list", middleware.Middleware(
+		middleware.ErrorHandler(usersHandler.GetAll),
+		middleware.AuthorizeHandler("get:users", authHandler.ValidatePermission)),
+	).Methods(http.MethodGet)
+	s.Handle("/search/paged", middleware.Middleware(
+		middleware.ErrorHandler(usersHandler.GetAllPaged),
+		middleware.AuthorizeHandler("get:users", authHandler.ValidatePermission)),
+	).Methods(http.MethodGet)
+	s.Handle("", middleware.Middleware(
+		middleware.ErrorHandler(usersHandler.Create),
+		middleware.AuthorizeHandler("create:user", authHandler.ValidatePermission)),
+	).Methods(http.MethodPost)
+	s.Handle("/{id}", middleware.Middleware(
+		middleware.ErrorHandler(usersHandler.Update),
+		middleware.AuthorizeHandler("update:user", authHandler.ValidatePermission)),
+	).Methods(http.MethodPut)
+	s.Handle("/{id}", middleware.Middleware(
+		middleware.ErrorHandler(usersHandler.Delete),
+		middleware.AuthorizeHandler("delete:user", authHandler.ValidatePermission)),
+	).Methods(http.MethodDelete)
 }

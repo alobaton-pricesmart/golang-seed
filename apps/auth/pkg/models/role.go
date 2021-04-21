@@ -10,7 +10,7 @@ type Role struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 
-	RolePermissions []RolePermission `gorm:"many2many:role_permission;" json:"rolePermissions"`
+	RolePermissions []RolePermission `json:"rolePermissions"`
 }
 
 func (r Role) TableName() string {

@@ -18,7 +18,7 @@ type User struct {
 	Locked   bool                `json:"locked"`
 	Enabled  bool                `json:"enabled"`
 
-	UserRoles []UserRole `gorm:"many2many:user_role;" json:"userRoles"`
+	UserRoles []UserRole `json:"userRoles"`
 }
 
 func (u User) TableName() string {

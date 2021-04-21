@@ -76,5 +76,21 @@ func (a AuthHandler) InternalErrorHandler(err error) *errors.Response {
 
 func (a AuthHandler) ValidateToken(r *http.Request) error {
 	_, err := a.srv.ValidationBearerToken(r)
-	return err
+	if err != nil {
+		return httperror.ErrorCauseT(err, http.StatusUnauthorized, messagesconst.OauthInvalidToken)
+	}
+
+	return nil
+}
+
+func (a AuthHandler) ValidatePermission(r *http.Request, permission string) error {
+	tokenInfo, err := a.srv.ValidationBearerToken(r)
+	if err != nil {
+		return httperror.ErrorCauseT(err, http.StatusUnauthorized, messagesconst.OauthInvalidToken)
+	}
+
+	// Consultar los permisos que tiene el usuario.
+	tokenInfo.GetUserID()
+
+	return nil
 }
