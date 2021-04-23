@@ -7,6 +7,8 @@ import (
 	"golang-seed/apps/auth/pkg/models"
 	"golang-seed/pkg/database"
 	"golang-seed/pkg/httperror"
+	"golang-seed/pkg/pagination"
+	"golang-seed/pkg/sorting"
 	"net/http"
 )
 
@@ -56,7 +58,7 @@ func (s ClientsService) Get(model *models.Client) error {
 	return nil
 }
 
-func (s ClientsService) GetAll(params map[string]interface{}, sort database.Sort) ([]*models.Client, error) {
+func (s ClientsService) GetAll(params map[string]interface{}, sort sorting.Sort) ([]*models.Client, error) {
 	var clients []*models.Client
 	err := models.Repo.Clients().Conditions(params).Order(sort).Find(&clients)
 	if err != nil {
@@ -74,7 +76,7 @@ func (s ClientsService) GetAll(params map[string]interface{}, sort database.Sort
 	return clients, nil
 }
 
-func (s ClientsService) GetAllPaged(params map[string]interface{}, sort database.Sort, pageable database.Pageable) (*database.Page, error) {
+func (s ClientsService) GetAllPaged(params map[string]interface{}, sort sorting.Sort, pageable pagination.Pageable) (*pagination.Page, error) {
 	var clients []*models.Client
 	err := models.Repo.Clients().Conditions(params).Order(sort).Pageable(pageable).Find(&clients)
 	if err != nil {
@@ -87,7 +89,7 @@ func (s ClientsService) GetAllPaged(params map[string]interface{}, sort database
 		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
-	return database.NewPage(pageable, int(count), clients), nil
+	return pagination.NewPage(pageable, int(count), clients), nil
 }
 
 func (s ClientsService) Create(model *models.Client) error {

@@ -3,13 +3,14 @@ package clientshand
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"golang-seed/apps/auth/pkg/messagesconst"
 	"golang-seed/apps/auth/pkg/models"
 	"golang-seed/apps/auth/pkg/service/clientsserv"
-	"golang-seed/pkg/database"
 	"golang-seed/pkg/httperror"
+	"golang-seed/pkg/pagination"
+	"golang-seed/pkg/server/handler"
+	"golang-seed/pkg/sorting"
 
 	"github.com/gorilla/mux"
 )
@@ -44,14 +45,8 @@ func (h ClientsHandler) Get(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h ClientsHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
-	sparams := r.URL.Query()["sort"]
-	sort := database.NewSort(sparams)
-
-	params := make(map[string]interface{})
-	for k, v := range r.URL.Query() {
-		params[k] = v
-	}
-	delete(params, "sort")
+	sort := sorting.Sortr(r)
+	params := handler.Paramsr(r)
 
 	clients, err := h.clientsService.GetAll(params, sort)
 	if err != nil {
@@ -73,40 +68,9 @@ func (h ClientsHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (h ClientsHandler) GetAllPaged(w http.ResponseWriter, r *http.Request) error {
-	if len(r.URL.Query()["page"]) < 1 {
-		return httperror.ErrorT(http.StatusBadRequest, messagesconst.GeneralErrorRequiredField, "page")
-	}
-
-	if len(r.URL.Query()["size"]) < 1 {
-		return httperror.ErrorT(http.StatusBadRequest, messagesconst.GeneralErrorRequiredField, "size")
-	}
-
-	var err error
-	var pagep int
-	var sizep int
-
-	pagep, err = strconv.Atoi(r.URL.Query()["page"][0])
-	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
-	}
-
-	sizep, err = strconv.Atoi(r.URL.Query()["size"][0])
-	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
-	}
-
-	pageable := database.NewPageable(pagep, sizep)
-
-	sortp := r.URL.Query()["sort"]
-	sort := database.NewSort(sortp)
-
-	params := make(map[string]interface{})
-	for k, v := range r.URL.Query() {
-		params[k] = v
-	}
-	delete(params, "sort")
-	delete(params, "page")
-	delete(params, "size")
+	pageable, _ := pagination.Pageabler(r)
+	sort := sorting.Sortr(r)
+	params := handler.Paramsr(r)
 
 	page, err := h.clientsService.GetAllPaged(params, sort, pageable)
 	if err != nil {

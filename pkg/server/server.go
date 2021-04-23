@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"golang-seed/pkg/middleware"
+	"golang-seed/pkg/server/middleware"
 
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"

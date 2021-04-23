@@ -1,6 +1,10 @@
-package database
+package pagination
 
-import "math"
+import (
+	"math"
+	"net/http"
+	"strconv"
+)
 
 type (
 	// Pageable request
@@ -31,6 +35,34 @@ func NewPage(pageable Pageable, totalElements int, content interface{}) *Page {
 		TotalElements: totalElements,
 		Content:       content,
 	}
+}
+
+func Pageabler(r *http.Request) (Pageable, error) {
+	def := NewPageable(0, 10)
+
+	if len(r.URL.Query()["page"]) < 1 {
+		return def, ErrRequiredPage
+	}
+
+	if len(r.URL.Query()["size"]) < 1 {
+		return def, ErrRequiredSize
+	}
+
+	var err error
+	var pagep int
+	var sizep int
+
+	pagep, err = strconv.Atoi(r.URL.Query()["page"][0])
+	if err != nil {
+		return def, ErrInvalidPage
+	}
+
+	sizep, err = strconv.Atoi(r.URL.Query()["size"][0])
+	if err != nil {
+		return def, ErrInvalidSize
+	}
+
+	return NewPageable(pagep, sizep), nil
 }
 
 func totalPages(totalElements int, size int) int {

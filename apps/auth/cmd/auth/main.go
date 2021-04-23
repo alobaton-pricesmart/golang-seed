@@ -10,8 +10,8 @@ import (
 	"golang-seed/apps/auth/pkg/service/usersserv"
 	"golang-seed/apps/auth/pkg/store"
 	"golang-seed/pkg/messages"
-	"golang-seed/pkg/middleware"
 	"golang-seed/pkg/server"
+	"golang-seed/pkg/server/middleware"
 	"net/http"
 
 	"github.com/go-oauth2/oauth2/v4"

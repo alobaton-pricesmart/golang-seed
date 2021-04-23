@@ -3,6 +3,8 @@ package database
 import (
 	"errors"
 	"fmt"
+	"golang-seed/pkg/pagination"
+	"golang-seed/pkg/sorting"
 
 	"gorm.io/gorm"
 )
@@ -23,7 +25,7 @@ func newCollection(db *Database, model Model) *Collection {
 }
 
 // Pageable set up a Pageable request to SQL statement.
-func (c *Collection) Pageable(pageable Pageable) *Collection {
+func (c *Collection) Pageable(pageable pagination.Pageable) *Collection {
 	if pageable.Page < 0 {
 		pageable.Page = 0
 	}
@@ -37,9 +39,9 @@ func (c *Collection) Pageable(pageable Pageable) *Collection {
 }
 
 // Order st up a Sort request to SQL statement.
-func (c *Collection) Order(sort Sort) *Collection {
-	for _, s := range sort.sorters {
-		c.db = c.db.Order(fmt.Sprintf("%v %v", s.field, s.direction))
+func (c *Collection) Order(sort sorting.Sort) *Collection {
+	for _, s := range sort.Sorters {
+		c.db = c.db.Order(fmt.Sprintf("%v %v", s.Field, s.Direction))
 	}
 	return c
 }
@@ -48,6 +50,10 @@ func (c *Collection) Order(sort Sort) *Collection {
 func (c *Collection) Conditions(conditions interface{}) *Collection {
 	mapc, ok := conditions.(map[string]interface{})
 	if ok {
+		delete(mapc, "sort")
+		delete(mapc, "page")
+		delete(mapc, "size")
+
 		c.db = c.db.Where(mapc)
 		return c
 	}
