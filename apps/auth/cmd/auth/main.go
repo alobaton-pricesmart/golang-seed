@@ -2,12 +2,9 @@ package main
 
 import (
 	"golang-seed/apps/auth/pkg/config"
-	"golang-seed/apps/auth/pkg/handler/authhand"
-	"golang-seed/apps/auth/pkg/handler/clientshand"
-	"golang-seed/apps/auth/pkg/handler/usershand"
+	"golang-seed/apps/auth/pkg/handler"
 	"golang-seed/apps/auth/pkg/models"
-	"golang-seed/apps/auth/pkg/service/clientsserv"
-	"golang-seed/apps/auth/pkg/service/usersserv"
+	"golang-seed/apps/auth/pkg/service"
 	"golang-seed/apps/auth/pkg/store"
 	"golang-seed/pkg/messages"
 	"golang-seed/pkg/server"
@@ -44,8 +41,9 @@ func main() {
 
 func registerRoutes(r *mux.Router) {
 	// Set up your services first.
-	clientsService := clientsserv.NewClientsService()
-	usersService := usersserv.NewUsersService()
+	clientsService := service.NewClientsService()
+	usersService := service.NewUsersService()
+	permissionsService := service.NewPermissionsService()
 
 	// auth handler
 	manager := manage.NewDefaultManager()
@@ -64,7 +62,7 @@ func registerRoutes(r *mux.Router) {
 	srv.SetClientInfoHandler(oauth2server.ClientBasicHandler)
 	srv.SetAllowedResponseType(oauth2.Token)
 
-	authHandler := authhand.NewAuthHandler(srv, usersService)
+	authHandler := handler.NewAuthHandler(srv, usersService)
 	r.HandleFunc("/oauth/authorize", authHandler.Authorize)
 	r.HandleFunc("/oauth/token", authHandler.Token)
 
@@ -72,7 +70,7 @@ func registerRoutes(r *mux.Router) {
 	srv.SetPasswordAuthorizationHandler(authHandler.PasswordAuthorizationHandler)
 
 	// clients handler
-	clientsHandler := clientshand.NewClientsHandler(clientsService)
+	clientsHandler := handler.NewClientsHandler(clientsService)
 	s := r.PathPrefix("/clients").Subrouter()
 	s.Use(middleware.AuthenticationHandler(authHandler.ValidateToken))
 	s.Handle("/{id}", middleware.Middleware(
@@ -101,7 +99,7 @@ func registerRoutes(r *mux.Router) {
 	).Methods(http.MethodDelete)
 
 	// users handler
-	usersHandler := usershand.NewUsersHandler(usersService)
+	usersHandler := handler.NewUsersHandler(usersService)
 	s = r.PathPrefix("/users").Subrouter()
 	s.Use(middleware.AuthenticationHandler(authHandler.ValidateToken))
 	s.Handle("/{id}", middleware.Middleware(
@@ -127,5 +125,34 @@ func registerRoutes(r *mux.Router) {
 	s.Handle("/{id}", middleware.Middleware(
 		middleware.ErrorHandler(usersHandler.Delete),
 		middleware.AuthorizeHandler("delete:user", authHandler.ValidatePermission)),
+	).Methods(http.MethodDelete)
+
+	// permissions handler
+	permissionsHandler := handler.NewPermissionsHandler(permissionsService)
+	s = r.PathPrefix("/permissions").Subrouter()
+	s.Use(middleware.AuthenticationHandler(authHandler.ValidateToken))
+	s.Handle("/{id}", middleware.Middleware(
+		middleware.ErrorHandler(permissionsHandler.Get),
+		middleware.AuthorizeHandler("get:permission", authHandler.ValidatePermission)),
+	).Methods(http.MethodGet)
+	s.Handle("/search/list", middleware.Middleware(
+		middleware.ErrorHandler(permissionsHandler.GetAll),
+		middleware.AuthorizeHandler("get:permissions", authHandler.ValidatePermission)),
+	).Methods(http.MethodGet)
+	s.Handle("/search/paged", middleware.Middleware(
+		middleware.ErrorHandler(permissionsHandler.GetAllPaged),
+		middleware.AuthorizeHandler("get:permissions", authHandler.ValidatePermission)),
+	).Methods(http.MethodGet)
+	s.Handle("", middleware.Middleware(
+		middleware.ErrorHandler(permissionsHandler.Create),
+		middleware.AuthorizeHandler("create:permission", authHandler.ValidatePermission)),
+	).Methods(http.MethodPost)
+	s.Handle("/{id}", middleware.Middleware(
+		middleware.ErrorHandler(permissionsHandler.Update),
+		middleware.AuthorizeHandler("update:permission", authHandler.ValidatePermission)),
+	).Methods(http.MethodPut)
+	s.Handle("/{id}", middleware.Middleware(
+		middleware.ErrorHandler(permissionsHandler.Delete),
+		middleware.AuthorizeHandler("delete:permission", authHandler.ValidatePermission)),
 	).Methods(http.MethodDelete)
 }

@@ -1,9 +1,9 @@
-package authhand
+package handler
 
 import (
 	"golang-seed/apps/auth/pkg/messagesconst"
 	"golang-seed/apps/auth/pkg/models"
-	"golang-seed/apps/auth/pkg/service/usersserv"
+	"golang-seed/apps/auth/pkg/service"
 	"golang-seed/pkg/httperror"
 	"net/http"
 
@@ -15,7 +15,7 @@ import (
 type (
 	AuthHandler struct {
 		srv          *server.Server
-		usersService *usersserv.UsersService
+		usersService *service.UsersService
 	}
 	// httpError is an error whose details to be shared with client.
 	httpError interface {
@@ -27,7 +27,7 @@ type (
 	}
 )
 
-func NewAuthHandler(srv *server.Server, usersService *usersserv.UsersService) *AuthHandler {
+func NewAuthHandler(srv *server.Server, usersService *service.UsersService) *AuthHandler {
 	return &AuthHandler{srv, usersService}
 }
 

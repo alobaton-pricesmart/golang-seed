@@ -1,8 +1,9 @@
-package clientsserv
+package service
 
 import (
 	"errors"
 	"fmt"
+
 	"golang-seed/apps/auth/pkg/messagesconst"
 	"golang-seed/apps/auth/pkg/models"
 	"golang-seed/pkg/database"
@@ -12,44 +13,44 @@ import (
 	"net/http"
 )
 
-type ClientsService struct {
+type PermissionsService struct {
 }
 
-func NewClientsService() *ClientsService {
-	return &ClientsService{}
+func NewPermissionsService() *PermissionsService {
+	return &PermissionsService{}
 }
 
-func (s ClientsService) GetByID(id string) (*models.Client, error) {
-	client := &models.Client{
+func (s PermissionsService) GetByID(id string) (*models.Permission, error) {
+	permission := &models.Permission{
 		Code: id,
 	}
-	err := models.Repo.Clients().Get(client)
+	err := models.Repo.Permissions().Get(permission)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			return nil, httperror.ErrorCauseT(
 				err,
 				http.StatusNotFound,
 				messagesconst.GeneralErrorRegisterNotFoundParams,
-				messagesconst.ClientsClients,
-				fmt.Sprintf("code : %s", id))
+				messagesconst.PermissionsPermissions,
+				fmt.Sprintf("id : %s", id))
 		}
 
 		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
-	return client, nil
+	return permission, nil
 }
 
-func (s ClientsService) Get(model *models.Client) error {
-	err := models.Repo.Clients().Conditions(model).Get(model)
+func (s PermissionsService) Get(permission *models.Permission) error {
+	err := models.Repo.Permissions().Conditions(permission).Get(permission)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			return httperror.ErrorCauseT(
 				err,
 				http.StatusNotFound,
 				messagesconst.GeneralErrorRegisterNotFoundParams,
-				messagesconst.ClientsClients,
-				model.String())
+				messagesconst.PermissionsPermissions,
+				permission.String())
 		}
 
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
@@ -58,42 +59,42 @@ func (s ClientsService) Get(model *models.Client) error {
 	return nil
 }
 
-func (s ClientsService) GetAll(params map[string]interface{}, sort sorting.Sort) ([]*models.Client, error) {
-	var clients []*models.Client
-	err := models.Repo.Clients().Conditions(params).Order(sort).Find(&clients)
+func (s PermissionsService) GetAll(params map[string]interface{}, sort sorting.Sort) ([]models.Permission, error) {
+	var permissions []models.Permission
+	err := models.Repo.Permissions().Conditions(params).Order(sort).Find(&permissions)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			return nil, httperror.ErrorCauseT(
 				err,
 				http.StatusNotFound,
 				messagesconst.GeneralErrorRegisterNotFound,
-				messagesconst.ClientsClients)
+				messagesconst.PermissionsPermissions)
 		}
 
 		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
-	return clients, nil
+	return permissions, nil
 }
 
-func (s ClientsService) GetAllPaged(params map[string]interface{}, sort sorting.Sort, pageable pagination.Pageable) (*pagination.Page, error) {
-	var clients []*models.Client
-	err := models.Repo.Clients().Conditions(params).Order(sort).Pageable(pageable).Find(&clients)
+func (s PermissionsService) GetAllPaged(params map[string]interface{}, sort sorting.Sort, pageable pagination.Pageable) (*pagination.Page, error) {
+	var permissions []models.Permission
+	err := models.Repo.Permissions().Conditions(params).Order(sort).Pageable(pageable).Find(&permissions)
 	if err != nil {
 		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	var count int64
-	err = models.Repo.Clients().Conditions(params).Count(&count)
+	err = models.Repo.Permissions().Conditions(params).Count(&count)
 	if err != nil {
 		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
-	return pagination.NewPage(pageable, int(count), clients), nil
+	return pagination.NewPage(pageable, int(count), permissions), nil
 }
 
-func (s ClientsService) Create(model *models.Client) error {
-	exists, err := models.Repo.Clients().Exists(model)
+func (s PermissionsService) Create(model *models.Permission) error {
+	exists, err := models.Repo.Permissions().Exists(model)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
@@ -102,11 +103,11 @@ func (s ClientsService) Create(model *models.Client) error {
 		return httperror.ErrorT(
 			http.StatusConflict,
 			messagesconst.GeneralErrorRegisterAlreadyExists,
-			messagesconst.ClientsClient,
+			messagesconst.PermissionsPermission,
 			fmt.Sprintf("code : %s", model.Code))
 	}
 
-	err = models.Repo.Clients().Create(model)
+	err = models.Repo.Permissions().Create(model)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
@@ -114,9 +115,9 @@ func (s ClientsService) Create(model *models.Client) error {
 	return nil
 }
 
-func (s ClientsService) Update(model *models.Client) error {
-	client := &models.Client{Code: model.Code}
-	exists, err := models.Repo.Clients().Exists(client)
+func (s PermissionsService) Update(model *models.Permission) error {
+	permission := &models.Permission{Code: model.Code}
+	exists, err := models.Repo.Permissions().Exists(permission)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
@@ -129,8 +130,8 @@ func (s ClientsService) Update(model *models.Client) error {
 			fmt.Sprintf("code : %s", model.Code))
 	}
 
-	model.CreatedAt = client.CreatedAt
-	err = models.Repo.Clients().Conditions(&models.Client{Code: model.Code}).Update(model)
+	model.CreatedAt = permission.CreatedAt
+	err = models.Repo.Permissions().Conditions(&models.Permission{Code: model.Code}).Update(model)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
@@ -138,19 +139,19 @@ func (s ClientsService) Update(model *models.Client) error {
 	return nil
 }
 
-func (s ClientsService) Delete(id string) error {
-	model := &models.Client{
+func (s PermissionsService) Delete(id string) error {
+	permission := &models.Permission{
 		Code: id,
 	}
-	err := models.Repo.Clients().Delete(model)
+	err := models.Repo.Permissions().Delete(permission)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			return httperror.ErrorCauseT(
 				err,
 				http.StatusNotFound,
 				messagesconst.GeneralErrorRegisterNotFoundParams,
-				messagesconst.ClientsClients,
-				fmt.Sprintf("code : %s", id))
+				messagesconst.PermissionsPermissions,
+				fmt.Sprintf("id : %s", id))
 		}
 
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)

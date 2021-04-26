@@ -1,4 +1,4 @@
-package usersserv
+package service
 
 import (
 	"errors"
@@ -21,7 +21,7 @@ func NewUsersService() *UsersService {
 	return &UsersService{}
 }
 
-func (s *UsersService) GetByID(id string) (*models.User, error) {
+func (s UsersService) GetByID(id string) (*models.User, error) {
 	user := &models.User{
 		ID: id,
 	}
@@ -42,7 +42,7 @@ func (s *UsersService) GetByID(id string) (*models.User, error) {
 	return user, nil
 }
 
-func (s *UsersService) Get(user *models.User) error {
+func (s UsersService) Get(user *models.User) error {
 	err := models.Repo.Users().Conditions(user).Get(user)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
@@ -60,7 +60,7 @@ func (s *UsersService) Get(user *models.User) error {
 	return nil
 }
 
-func (s *UsersService) GetAll(params map[string]interface{}, sort sorting.Sort) ([]models.User, error) {
+func (s UsersService) GetAll(params map[string]interface{}, sort sorting.Sort) ([]models.User, error) {
 	var users []models.User
 	err := models.Repo.Users().Conditions(params).Order(sort).Find(&users)
 	if err != nil {
@@ -78,7 +78,7 @@ func (s *UsersService) GetAll(params map[string]interface{}, sort sorting.Sort) 
 	return users, nil
 }
 
-func (s *UsersService) GetAllPaged(params map[string]interface{}, sort sorting.Sort, pageable pagination.Pageable) (*pagination.Page, error) {
+func (s UsersService) GetAllPaged(params map[string]interface{}, sort sorting.Sort, pageable pagination.Pageable) (*pagination.Page, error) {
 	var users []models.User
 	err := models.Repo.Users().Conditions(params).Order(sort).Pageable(pageable).Find(&users)
 	if err != nil {
@@ -94,7 +94,7 @@ func (s *UsersService) GetAllPaged(params map[string]interface{}, sort sorting.S
 	return pagination.NewPage(pageable, int(count), users), nil
 }
 
-func (s *UsersService) Create(model *models.User) error {
+func (s UsersService) Create(model *models.User) error {
 	exists, err := models.Repo.Users().Exists(model)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
@@ -122,7 +122,31 @@ func (s *UsersService) Create(model *models.User) error {
 	return nil
 }
 
-func (s *UsersService) Delete(id string) error {
+func (s UsersService) Update(model *models.User) error {
+	user := &models.User{ID: model.ID}
+	exists, err := models.Repo.Users().Exists(user)
+	if err != nil {
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+	}
+
+	if !exists {
+		return httperror.ErrorT(
+			http.StatusNotFound,
+			messagesconst.GeneralErrorRegisterNotFoundParams,
+			messagesconst.ClientsClients,
+			fmt.Sprintf("id : %s", model.ID))
+	}
+
+	model.CreatedAt = user.CreatedAt
+	err = models.Repo.Users().Conditions(&models.User{ID: model.ID}).Update(model)
+	if err != nil {
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+	}
+
+	return nil
+}
+
+func (s UsersService) Delete(id string) error {
 	user := &models.User{
 		ID: id,
 	}

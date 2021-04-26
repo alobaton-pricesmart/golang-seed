@@ -1,6 +1,10 @@
 package models
 
-import "golang-seed/pkg/database"
+import (
+	"fmt"
+	"golang-seed/pkg/database"
+	"strings"
+)
 
 type Permission struct {
 	database.AuditModel
@@ -10,6 +14,24 @@ type Permission struct {
 	Description string `json:"description"`
 }
 
-func (r Permission) TableName() string {
+func (p Permission) TableName() string {
 	return "permissions"
+}
+
+func (p Permission) String() string {
+	var b strings.Builder
+
+	if len(p.Code) > 0 {
+		fmt.Fprintf(&b, " code : %s ", p.Code)
+	}
+
+	if len(p.Name) > 0 {
+		fmt.Fprintf(&b, " name : %s ", p.Name)
+	}
+
+	if len(p.Description) > 0 {
+		fmt.Fprintf(&b, " description : %s ", p.Description)
+	}
+
+	return b.String()
 }

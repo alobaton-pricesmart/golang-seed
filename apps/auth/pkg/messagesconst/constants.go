@@ -19,4 +19,10 @@ const (
 
 	ClientsClient  = "clients.client"
 	ClientsClients = "clients.clients"
+
+	PermissionsPermission  = "permissions.permission"
+	PermissionsPermissions = "permissions.permissions"
+
+	RolesRole  = "roles.role"
+	RolesRoles = "roles.roles"
 )

@@ -1,40 +1,43 @@
-package clientshand
+package handler
 
 import (
 	"encoding/json"
-	"net/http"
-
 	"golang-seed/apps/auth/pkg/messagesconst"
 	"golang-seed/apps/auth/pkg/models"
-	"golang-seed/apps/auth/pkg/service/clientsserv"
+	"golang-seed/apps/auth/pkg/service"
 	"golang-seed/pkg/httperror"
 	"golang-seed/pkg/pagination"
 	"golang-seed/pkg/server/handler"
 	"golang-seed/pkg/sorting"
+	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
 
-type ClientsHandler struct {
-	clientsService *clientsserv.ClientsService
+type PermissionsHandler struct {
+	permissionsService *service.PermissionsService
 }
 
-func NewClientsHandler(clientsService *clientsserv.ClientsService) *ClientsHandler {
-	return &ClientsHandler{clientsService: clientsService}
+func NewPermissionsHandler(permissionsService *service.PermissionsService) *PermissionsHandler {
+	return &PermissionsHandler{permissionsService: permissionsService}
 }
 
-func (h ClientsHandler) Get(w http.ResponseWriter, r *http.Request) error {
+func (h PermissionsHandler) Get(w http.ResponseWriter, r *http.Request) error {
 	pathVars := mux.Vars(r)
 	id := pathVars["id"]
 
-	client, err := h.clientsService.GetByID(id)
+	_, err := uuid.Parse(id)
+	if err != nil {
+		return httperror.ErrorCauseT(err, http.StatusBadRequest, messagesconst.GeneralErrorInvalidField, "id")
+	}
+
+	permission, err := h.permissionsService.GetByID(id)
 	if err != nil {
 		return err
 	}
 
-	client.Secret = ""
-
-	body, err := json.Marshal(client)
+	body, err := json.Marshal(permission)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
 	}
@@ -44,20 +47,16 @@ func (h ClientsHandler) Get(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (h ClientsHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
+func (h PermissionsHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
 	sort := sorting.Sortr(r)
 	params := handler.Paramsr(r)
 
-	clients, err := h.clientsService.GetAll(params, sort)
+	permissions, err := h.permissionsService.GetAll(params, sort)
 	if err != nil {
 		return err
 	}
 
-	for _, client := range clients {
-		client.Secret = ""
-	}
-
-	body, err := json.Marshal(clients)
+	body, err := json.Marshal(permissions)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
 	}
@@ -67,25 +66,17 @@ func (h ClientsHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (h ClientsHandler) GetAllPaged(w http.ResponseWriter, r *http.Request) error {
+func (h PermissionsHandler) GetAllPaged(w http.ResponseWriter, r *http.Request) error {
 	pageable, _ := pagination.Pageabler(r)
 	sort := sorting.Sortr(r)
 	params := handler.Paramsr(r)
 
-	page, err := h.clientsService.GetAllPaged(params, sort, pageable)
+	page, err := h.permissionsService.GetAllPaged(params, sort, pageable)
 	if err != nil {
 		return err
 	}
 
-	clients, ok := page.Content.([]*models.Client)
-	if ok {
-		for _, client := range clients {
-			client.Secret = ""
-		}
-		page.Content = clients
-	}
-
-	body, err := json.Marshal(clients)
+	body, err := json.Marshal(page)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
 	}
@@ -95,24 +86,22 @@ func (h ClientsHandler) GetAllPaged(w http.ResponseWriter, r *http.Request) erro
 	return nil
 }
 
-func (h ClientsHandler) Create(w http.ResponseWriter, r *http.Request) error {
-	client := &models.Client{}
+func (h PermissionsHandler) Create(w http.ResponseWriter, r *http.Request) error {
+	permission := &models.Permission{}
 	decoder := json.NewDecoder(r.Body)
 	defer r.Body.Close()
 
-	err := decoder.Decode(client)
+	err := decoder.Decode(permission)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusBadRequest, messagesconst.GeneralErrorMarshal)
 	}
 
-	err = h.clientsService.Create(client)
+	err = h.permissionsService.Create(permission)
 	if err != nil {
 		return err
 	}
 
-	client.Secret = ""
-
-	body, err := json.Marshal(client)
+	body, err := json.Marshal(permission)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
 	}
@@ -122,24 +111,22 @@ func (h ClientsHandler) Create(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (h ClientsHandler) Update(w http.ResponseWriter, r *http.Request) error {
-	client := &models.Client{}
+func (h PermissionsHandler) Update(w http.ResponseWriter, r *http.Request) error {
+	permission := &models.Permission{}
 	decoder := json.NewDecoder(r.Body)
 	defer r.Body.Close()
 
-	err := decoder.Decode(client)
+	err := decoder.Decode(permission)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusBadRequest, messagesconst.GeneralErrorMarshal)
 	}
 
-	err = h.clientsService.Update(client)
+	err = h.permissionsService.Update(permission)
 	if err != nil {
 		return err
 	}
 
-	client.Secret = ""
-
-	body, err := json.Marshal(client)
+	body, err := json.Marshal(permission)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
 	}
@@ -149,11 +136,11 @@ func (h ClientsHandler) Update(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (h ClientsHandler) Delete(w http.ResponseWriter, r *http.Request) error {
+func (h PermissionsHandler) Delete(w http.ResponseWriter, r *http.Request) error {
 	pathVars := mux.Vars(r)
 	id := pathVars["id"]
 
-	err := h.clientsService.Delete(id)
+	err := h.permissionsService.Delete(id)
 	if err != nil {
 		return err
 	}

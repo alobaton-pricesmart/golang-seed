@@ -23,5 +23,13 @@
     "clients": {
         "client": "Cliente",
         "clients": "Clientes"
+    },
+    "permissions": {
+        "permission": "Permiso",
+        "permissions": "Permisos"
+    },
+    "roles": {
+        "role": "Rol",
+        "roles": "Roles"
     }
 }
