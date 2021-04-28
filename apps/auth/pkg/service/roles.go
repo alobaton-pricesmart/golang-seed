@@ -13,44 +13,44 @@ import (
 	"net/http"
 )
 
-type PermissionsService struct {
+type RolesService struct {
 }
 
-func NewPermissionsService() *PermissionsService {
-	return &PermissionsService{}
+func NewRolesService() *RolesService {
+	return &RolesService{}
 }
 
-func (s PermissionsService) GetByID(id string) (*models.Permission, error) {
-	permission := &models.Permission{
+func (r RolesService) GetByID(id string) (*models.Role, error) {
+	role := &models.Role{
 		Code: id,
 	}
-	err := models.Repo.Permissions().Get(permission)
+	err := models.Repo.Roles().Get(role)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			return nil, httperror.ErrorCauseT(
 				err,
 				http.StatusNotFound,
 				messagesconst.GeneralErrorRegisterNotFoundParams,
-				messagesconst.PermissionsPermissions,
+				messagesconst.RolesRoles,
 				fmt.Sprintf("code : %s", id))
 		}
 
 		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
-	return permission, nil
+	return role, nil
 }
 
-func (s PermissionsService) Get(permission *models.Permission) error {
-	err := models.Repo.Permissions().Conditions(permission).Get(permission)
+func (r RolesService) Get(role *models.Role) error {
+	err := models.Repo.Roles().Conditions(role).Get(role)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			return httperror.ErrorCauseT(
 				err,
 				http.StatusNotFound,
 				messagesconst.GeneralErrorRegisterNotFoundParams,
-				messagesconst.PermissionsPermissions,
-				permission.String())
+				messagesconst.RolesRoles,
+				role.String())
 		}
 
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
@@ -59,42 +59,42 @@ func (s PermissionsService) Get(permission *models.Permission) error {
 	return nil
 }
 
-func (s PermissionsService) GetAll(params map[string]interface{}, sort sorting.Sort) ([]models.Permission, error) {
-	var permissions []models.Permission
-	err := models.Repo.Permissions().Conditions(params).Order(sort).Find(&permissions)
+func (r RolesService) GetAll(params map[string]interface{}, sort sorting.Sort) ([]models.Role, error) {
+	var roles []models.Role
+	err := models.Repo.Roles().Conditions(params).Order(sort).Find(&roles)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			return nil, httperror.ErrorCauseT(
 				err,
 				http.StatusNotFound,
 				messagesconst.GeneralErrorRegisterNotFound,
-				messagesconst.PermissionsPermissions)
+				messagesconst.RolesRoles)
 		}
 
 		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
-	return permissions, nil
+	return roles, nil
 }
 
-func (s PermissionsService) GetAllPaged(params map[string]interface{}, sort sorting.Sort, pageable pagination.Pageable) (*pagination.Page, error) {
-	var permissions []models.Permission
-	err := models.Repo.Permissions().Conditions(params).Order(sort).Pageable(pageable).Find(&permissions)
+func (r RolesService) GetAllPaged(params map[string]interface{}, sort sorting.Sort, pageable pagination.Pageable) (*pagination.Page, error) {
+	var roles []models.Role
+	err := models.Repo.Roles().Conditions(params).Order(sort).Pageable(pageable).Find(&roles)
 	if err != nil {
 		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	var count int64
-	err = models.Repo.Permissions().Conditions(params).Count(&count)
+	err = models.Repo.Roles().Conditions(params).Count(&count)
 	if err != nil {
 		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
-	return pagination.NewPage(pageable, int(count), permissions), nil
+	return pagination.NewPage(pageable, int(count), roles), nil
 }
 
-func (s PermissionsService) Create(model *models.Permission) error {
-	exists, err := models.Repo.Permissions().Exists(model)
+func (r RolesService) Create(model *models.Role) error {
+	exists, err := models.Repo.Roles().Exists(model)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
@@ -103,11 +103,11 @@ func (s PermissionsService) Create(model *models.Permission) error {
 		return httperror.ErrorT(
 			http.StatusConflict,
 			messagesconst.GeneralErrorRegisterAlreadyExists,
-			messagesconst.PermissionsPermission,
+			messagesconst.RolesRole,
 			fmt.Sprintf("code : %s", model.Code))
 	}
 
-	err = models.Repo.Permissions().Create(model)
+	err = models.Repo.Roles().Create(model)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
@@ -115,9 +115,9 @@ func (s PermissionsService) Create(model *models.Permission) error {
 	return nil
 }
 
-func (s PermissionsService) Update(model *models.Permission) error {
-	permission := &models.Permission{Code: model.Code}
-	exists, err := models.Repo.Permissions().Exists(permission)
+func (r RolesService) Update(model *models.Role) error {
+	role := &models.Role{Code: model.Code}
+	exists, err := models.Repo.Roles().Exists(role)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
@@ -130,8 +130,8 @@ func (s PermissionsService) Update(model *models.Permission) error {
 			fmt.Sprintf("code : %s", model.Code))
 	}
 
-	model.CreatedAt = permission.CreatedAt
-	err = models.Repo.Permissions().Conditions(&models.Permission{Code: model.Code}).Update(model)
+	model.CreatedAt = role.CreatedAt
+	err = models.Repo.Roles().Conditions(&models.Role{Code: model.Code}).Update(model)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
@@ -139,18 +139,18 @@ func (s PermissionsService) Update(model *models.Permission) error {
 	return nil
 }
 
-func (s PermissionsService) Delete(id string) error {
-	permission := &models.Permission{
+func (r RolesService) Delete(id string) error {
+	role := &models.Role{
 		Code: id,
 	}
-	err := models.Repo.Permissions().Delete(permission)
+	err := models.Repo.Roles().Delete(role)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			return httperror.ErrorCauseT(
 				err,
 				http.StatusNotFound,
 				messagesconst.GeneralErrorRegisterNotFoundParams,
-				messagesconst.PermissionsPermissions,
+				messagesconst.RolesRoles,
 				fmt.Sprintf("code : %s", id))
 		}
 

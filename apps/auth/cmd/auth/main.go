@@ -44,6 +44,7 @@ func registerRoutes(r *mux.Router) {
 	clientsService := service.NewClientsService()
 	usersService := service.NewUsersService()
 	permissionsService := service.NewPermissionsService()
+	rolesService := service.NewRolesService()
 
 	// auth handler
 	manager := manage.NewDefaultManager()
@@ -154,5 +155,34 @@ func registerRoutes(r *mux.Router) {
 	s.Handle("/{id}", middleware.Middleware(
 		middleware.ErrorHandler(permissionsHandler.Delete),
 		middleware.AuthorizeHandler("delete:permission", authHandler.ValidatePermission)),
+	).Methods(http.MethodDelete)
+
+	// roles handler
+	rolesHandler := handler.NewRolesHandler(rolesService)
+	s = r.PathPrefix("/roles").Subrouter()
+	s.Use(middleware.AuthenticationHandler(authHandler.ValidateToken))
+	s.Handle("/{id}", middleware.Middleware(
+		middleware.ErrorHandler(rolesHandler.Get),
+		middleware.AuthorizeHandler("get:role", authHandler.ValidatePermission)),
+	).Methods(http.MethodGet)
+	s.Handle("/search/list", middleware.Middleware(
+		middleware.ErrorHandler(rolesHandler.GetAll),
+		middleware.AuthorizeHandler("get:roles", authHandler.ValidatePermission)),
+	).Methods(http.MethodGet)
+	s.Handle("/search/paged", middleware.Middleware(
+		middleware.ErrorHandler(rolesHandler.GetAllPaged),
+		middleware.AuthorizeHandler("get:roles", authHandler.ValidatePermission)),
+	).Methods(http.MethodGet)
+	s.Handle("", middleware.Middleware(
+		middleware.ErrorHandler(rolesHandler.Create),
+		middleware.AuthorizeHandler("create:role", authHandler.ValidatePermission)),
+	).Methods(http.MethodPost)
+	s.Handle("/{id}", middleware.Middleware(
+		middleware.ErrorHandler(rolesHandler.Update),
+		middleware.AuthorizeHandler("update:role", authHandler.ValidatePermission)),
+	).Methods(http.MethodPut)
+	s.Handle("/{id}", middleware.Middleware(
+		middleware.ErrorHandler(rolesHandler.Delete),
+		middleware.AuthorizeHandler("delete:role", authHandler.ValidatePermission)),
 	).Methods(http.MethodDelete)
 }
