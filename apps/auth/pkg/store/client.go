@@ -7,6 +7,7 @@ import (
 	"github.com/go-oauth2/oauth2/v4/store"
 
 	"golang-seed/apps/auth/pkg/models"
+	"golang-seed/apps/auth/pkg/repo"
 	"golang-seed/pkg/database"
 )
 
@@ -37,7 +38,7 @@ func (cs *ClientStore) GetByID(ctx context.Context, id string) (oauth2.ClientInf
 	client := &models.Client{
 		Code: id,
 	}
-	err := models.Repo.Clients().Get(client)
+	err := repo.Repo.Clients().Get(client)
 
 	return client, err
 }
@@ -49,5 +50,5 @@ func (cs *ClientStore) Set(id string, cli oauth2.ClientInfo) error {
 
 	client := serializeClientInfo(id, cli)
 
-	return models.Repo.Clients().Update(client)
+	return repo.Repo.Clients().Update(client)
 }

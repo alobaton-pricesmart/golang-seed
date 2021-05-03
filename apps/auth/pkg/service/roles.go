@@ -3,14 +3,15 @@ package service
 import (
 	"errors"
 	"fmt"
+	"net/http"
 
 	"golang-seed/apps/auth/pkg/messagesconst"
 	"golang-seed/apps/auth/pkg/models"
+	"golang-seed/apps/auth/pkg/repo"
 	"golang-seed/pkg/database"
 	"golang-seed/pkg/httperror"
 	"golang-seed/pkg/pagination"
 	"golang-seed/pkg/sorting"
-	"net/http"
 )
 
 type RolesService struct {
@@ -24,7 +25,7 @@ func (r RolesService) GetByID(id string) (*models.Role, error) {
 	role := &models.Role{
 		Code: id,
 	}
-	err := models.Repo.Roles().Get(role)
+	err := repo.Repo.Roles().Get(role)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			return nil, httperror.ErrorCauseT(
@@ -42,7 +43,7 @@ func (r RolesService) GetByID(id string) (*models.Role, error) {
 }
 
 func (r RolesService) Get(role *models.Role) error {
-	err := models.Repo.Roles().Conditions(role).Get(role)
+	err := repo.Repo.Roles().Conditions(role).Get(role)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			return httperror.ErrorCauseT(
@@ -61,7 +62,7 @@ func (r RolesService) Get(role *models.Role) error {
 
 func (r RolesService) GetAll(params map[string]interface{}, sort sorting.Sort) ([]models.Role, error) {
 	var roles []models.Role
-	err := models.Repo.Roles().Conditions(params).Order(sort).Find(&roles)
+	err := repo.Repo.Roles().Conditions(params).Order(sort).Find(&roles)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			return nil, httperror.ErrorCauseT(
@@ -79,13 +80,13 @@ func (r RolesService) GetAll(params map[string]interface{}, sort sorting.Sort) (
 
 func (r RolesService) GetAllPaged(params map[string]interface{}, sort sorting.Sort, pageable pagination.Pageable) (*pagination.Page, error) {
 	var roles []models.Role
-	err := models.Repo.Roles().Conditions(params).Order(sort).Pageable(pageable).Find(&roles)
+	err := repo.Repo.Roles().Conditions(params).Order(sort).Pageable(pageable).Find(&roles)
 	if err != nil {
 		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	var count int64
-	err = models.Repo.Roles().Conditions(params).Count(&count)
+	err = repo.Repo.Roles().Conditions(params).Count(&count)
 	if err != nil {
 		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
@@ -94,7 +95,7 @@ func (r RolesService) GetAllPaged(params map[string]interface{}, sort sorting.So
 }
 
 func (r RolesService) Create(model *models.Role) error {
-	exists, err := models.Repo.Roles().Exists(model)
+	exists, err := repo.Repo.Roles().Exists(model)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
@@ -107,7 +108,7 @@ func (r RolesService) Create(model *models.Role) error {
 			fmt.Sprintf("code : %s", model.Code))
 	}
 
-	err = models.Repo.Roles().Create(model)
+	err = repo.Repo.Roles().Create(model)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
@@ -117,7 +118,7 @@ func (r RolesService) Create(model *models.Role) error {
 
 func (r RolesService) Update(model *models.Role) error {
 	role := &models.Role{Code: model.Code}
-	exists, err := models.Repo.Roles().Exists(role)
+	exists, err := repo.Repo.Roles().Exists(role)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
@@ -131,7 +132,7 @@ func (r RolesService) Update(model *models.Role) error {
 	}
 
 	model.CreatedAt = role.CreatedAt
-	err = models.Repo.Roles().Conditions(&models.Role{Code: model.Code}).Update(model)
+	err = repo.Repo.Roles().Conditions(&models.Role{Code: model.Code}).Update(model)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
@@ -143,7 +144,7 @@ func (r RolesService) Delete(id string) error {
 	role := &models.Role{
 		Code: id,
 	}
-	err := models.Repo.Roles().Delete(role)
+	err := repo.Repo.Roles().Delete(role)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			return httperror.ErrorCauseT(

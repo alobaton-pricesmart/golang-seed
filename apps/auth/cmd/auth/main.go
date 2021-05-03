@@ -3,7 +3,7 @@ package main
 import (
 	"golang-seed/apps/auth/pkg/config"
 	"golang-seed/apps/auth/pkg/handler"
-	"golang-seed/apps/auth/pkg/models"
+	"golang-seed/apps/auth/pkg/repo"
 	"golang-seed/apps/auth/pkg/service"
 	"golang-seed/apps/auth/pkg/store"
 	"golang-seed/pkg/messages"
@@ -23,7 +23,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := models.ConnectRepo(); err != nil {
+	if err := repo.ConnectRepo(); err != nil {
 		log.Fatal(err)
 	}
 

@@ -3,15 +3,17 @@ package service
 import (
 	"errors"
 	"fmt"
+	"net/http"
+
+	"golang.org/x/crypto/bcrypt"
+
 	"golang-seed/apps/auth/pkg/messagesconst"
 	"golang-seed/apps/auth/pkg/models"
+	"golang-seed/apps/auth/pkg/repo"
 	"golang-seed/pkg/database"
 	"golang-seed/pkg/httperror"
 	"golang-seed/pkg/pagination"
 	"golang-seed/pkg/sorting"
-	"net/http"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 type UsersService struct {
@@ -25,7 +27,7 @@ func (s UsersService) GetByID(id string) (*models.User, error) {
 	user := &models.User{
 		ID: id,
 	}
-	err := models.Repo.Users().Get(user)
+	err := repo.Repo.Users().Get(user)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			return nil, httperror.ErrorCauseT(
@@ -43,7 +45,7 @@ func (s UsersService) GetByID(id string) (*models.User, error) {
 }
 
 func (s UsersService) Get(user *models.User) error {
-	err := models.Repo.Users().Conditions(user).Get(user)
+	err := repo.Repo.Users().Conditions(user).Get(user)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			return httperror.ErrorCauseT(
@@ -62,7 +64,7 @@ func (s UsersService) Get(user *models.User) error {
 
 func (s UsersService) GetAll(params map[string]interface{}, sort sorting.Sort) ([]models.User, error) {
 	var users []models.User
-	err := models.Repo.Users().Conditions(params).Order(sort).Find(&users)
+	err := repo.Repo.Users().Conditions(params).Order(sort).Find(&users)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			return nil, httperror.ErrorCauseT(
@@ -80,13 +82,13 @@ func (s UsersService) GetAll(params map[string]interface{}, sort sorting.Sort) (
 
 func (s UsersService) GetAllPaged(params map[string]interface{}, sort sorting.Sort, pageable pagination.Pageable) (*pagination.Page, error) {
 	var users []models.User
-	err := models.Repo.Users().Conditions(params).Order(sort).Pageable(pageable).Find(&users)
+	err := repo.Repo.Users().Conditions(params).Order(sort).Pageable(pageable).Find(&users)
 	if err != nil {
 		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	var count int64
-	err = models.Repo.Users().Conditions(params).Count(&count)
+	err = repo.Repo.Users().Conditions(params).Count(&count)
 	if err != nil {
 		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
@@ -95,7 +97,7 @@ func (s UsersService) GetAllPaged(params map[string]interface{}, sort sorting.So
 }
 
 func (s UsersService) Create(model *models.User) error {
-	exists, err := models.Repo.Users().Exists(model)
+	exists, err := repo.Repo.Users().Exists(model)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
@@ -114,7 +116,7 @@ func (s UsersService) Create(model *models.User) error {
 	}
 	model.Password = string(hash)
 
-	err = models.Repo.Users().Create(model)
+	err = repo.Repo.Users().Create(model)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
@@ -124,7 +126,7 @@ func (s UsersService) Create(model *models.User) error {
 
 func (s UsersService) Update(model *models.User) error {
 	user := &models.User{ID: model.ID}
-	exists, err := models.Repo.Users().Exists(user)
+	exists, err := repo.Repo.Users().Exists(user)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
@@ -138,7 +140,7 @@ func (s UsersService) Update(model *models.User) error {
 	}
 
 	model.CreatedAt = user.CreatedAt
-	err = models.Repo.Users().Conditions(&models.User{ID: model.ID}).Update(model)
+	err = repo.Repo.Users().Conditions(&models.User{ID: model.ID}).Update(model)
 	if err != nil {
 		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
@@ -150,7 +152,7 @@ func (s UsersService) Delete(id string) error {
 	user := &models.User{
 		ID: id,
 	}
-	err := models.Repo.Users().Delete(user)
+	err := repo.Repo.Users().Delete(user)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			return httperror.ErrorCauseT(
