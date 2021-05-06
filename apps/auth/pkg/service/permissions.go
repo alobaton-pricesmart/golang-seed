@@ -43,7 +43,7 @@ func (s PermissionsService) GetByID(id string) (*models.Permission, error) {
 }
 
 func (s PermissionsService) Get(permission *models.Permission) error {
-	err := repo.Repo.Permissions().Conditions(permission).Get(permission)
+	err := repo.Repo.Permissions().WhereModel(permission).Get(permission)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			return httperror.ErrorCauseT(
@@ -54,7 +54,7 @@ func (s PermissionsService) Get(permission *models.Permission) error {
 				permission.String())
 		}
 
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	return nil
@@ -62,7 +62,17 @@ func (s PermissionsService) Get(permission *models.Permission) error {
 
 func (s PermissionsService) GetAll(params map[string]interface{}, sort sorting.Sort) ([]models.Permission, error) {
 	var permissions []models.Permission
-	err := repo.Repo.Permissions().Conditions(params).Order(sort).Find(&permissions)
+	collection, err := repo.Repo.Permissions().WhereMap(params)
+	if err != nil {
+		httperror.ErrorCauseT(err, http.StatusBadRequest, err.Error())
+	}
+
+	collection, err = collection.Order(sort)
+	if err != nil {
+		httperror.ErrorCauseT(err, http.StatusBadRequest, err.Error())
+	}
+
+	err = collection.Find(&permissions)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			return nil, httperror.ErrorCauseT(
@@ -80,13 +90,23 @@ func (s PermissionsService) GetAll(params map[string]interface{}, sort sorting.S
 
 func (s PermissionsService) GetAllPaged(params map[string]interface{}, sort sorting.Sort, pageable pagination.Pageable) (*pagination.Page, error) {
 	var permissions []models.Permission
-	err := repo.Repo.Permissions().Conditions(params).Order(sort).Pageable(pageable).Find(&permissions)
+	collection, err := repo.Repo.Permissions().WhereMap(params)
+	if err != nil {
+		httperror.ErrorCauseT(err, http.StatusBadRequest, err.Error())
+	}
+
+	collectiono, err := collection.Order(sort)
+	if err != nil {
+		httperror.ErrorCauseT(err, http.StatusBadRequest, err.Error())
+	}
+
+	err = collectiono.Pageable(pageable).Find(&permissions)
 	if err != nil {
 		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	var count int64
-	err = repo.Repo.Permissions().Conditions(params).Count(&count)
+	err = collection.Count(&count)
 	if err != nil {
 		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
@@ -97,7 +117,7 @@ func (s PermissionsService) GetAllPaged(params map[string]interface{}, sort sort
 func (s PermissionsService) Create(model *models.Permission) error {
 	exists, err := repo.Repo.Permissions().Exists(model)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	if exists {
@@ -110,7 +130,7 @@ func (s PermissionsService) Create(model *models.Permission) error {
 
 	err = repo.Repo.Permissions().Create(model)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	return nil
@@ -120,7 +140,7 @@ func (s PermissionsService) Update(model *models.Permission) error {
 	permission := &models.Permission{Code: model.Code}
 	exists, err := repo.Repo.Permissions().Exists(permission)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	if !exists {
@@ -132,9 +152,9 @@ func (s PermissionsService) Update(model *models.Permission) error {
 	}
 
 	model.CreatedAt = permission.CreatedAt
-	err = repo.Repo.Permissions().Conditions(&models.Permission{Code: model.Code}).Update(model)
+	err = repo.Repo.Permissions().WhereModel(&models.Permission{Code: model.Code}).Update(model)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	return nil
@@ -155,7 +175,7 @@ func (s PermissionsService) Delete(id string) error {
 				fmt.Sprintf("code : %s", id))
 		}
 
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	return nil

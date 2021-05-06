@@ -43,7 +43,7 @@ func (s ClientsService) GetByID(id string) (*models.Client, error) {
 }
 
 func (s ClientsService) Get(model *models.Client) error {
-	err := repo.Repo.Clients().Conditions(model).Get(model)
+	err := repo.Repo.Clients().WhereModel(model).Get(model)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			return httperror.ErrorCauseT(
@@ -54,7 +54,7 @@ func (s ClientsService) Get(model *models.Client) error {
 				model.String())
 		}
 
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	return nil
@@ -62,7 +62,17 @@ func (s ClientsService) Get(model *models.Client) error {
 
 func (s ClientsService) GetAll(params map[string]interface{}, sort sorting.Sort) ([]*models.Client, error) {
 	var clients []*models.Client
-	err := repo.Repo.Clients().Conditions(params).Order(sort).Find(&clients)
+	collection, err := repo.Repo.Clients().WhereMap(params)
+	if err != nil {
+		httperror.ErrorCauseT(err, http.StatusBadRequest, err.Error())
+	}
+
+	collection, err = collection.Order(sort)
+	if err != nil {
+		httperror.ErrorCauseT(err, http.StatusBadRequest, err.Error())
+	}
+
+	collection.Find(&clients)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			return nil, httperror.ErrorCauseT(
@@ -80,13 +90,23 @@ func (s ClientsService) GetAll(params map[string]interface{}, sort sorting.Sort)
 
 func (s ClientsService) GetAllPaged(params map[string]interface{}, sort sorting.Sort, pageable pagination.Pageable) (*pagination.Page, error) {
 	var clients []*models.Client
-	err := repo.Repo.Clients().Conditions(params).Order(sort).Pageable(pageable).Find(&clients)
+	collection, err := repo.Repo.Clients().WhereMap(params)
+	if err != nil {
+		httperror.ErrorCauseT(err, http.StatusBadRequest, err.Error())
+	}
+
+	collectiono, err := collection.Order(sort)
+	if err != nil {
+		httperror.ErrorCauseT(err, http.StatusBadRequest, err.Error())
+	}
+
+	err = collectiono.Pageable(pageable).Find(&clients)
 	if err != nil {
 		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	var count int64
-	err = repo.Repo.Clients().Conditions(params).Count(&count)
+	err = collection.Count(&count)
 	if err != nil {
 		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
@@ -97,7 +117,7 @@ func (s ClientsService) GetAllPaged(params map[string]interface{}, sort sorting.
 func (s ClientsService) Create(model *models.Client) error {
 	exists, err := repo.Repo.Clients().Exists(model)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	if exists {
@@ -110,7 +130,7 @@ func (s ClientsService) Create(model *models.Client) error {
 
 	err = repo.Repo.Clients().Create(model)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	return nil
@@ -120,7 +140,7 @@ func (s ClientsService) Update(model *models.Client) error {
 	client := &models.Client{Code: model.Code}
 	exists, err := repo.Repo.Clients().Exists(client)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	if !exists {
@@ -132,9 +152,9 @@ func (s ClientsService) Update(model *models.Client) error {
 	}
 
 	model.CreatedAt = client.CreatedAt
-	err = repo.Repo.Clients().Conditions(&models.Client{Code: model.Code}).Update(model)
+	err = repo.Repo.Clients().WhereModel(&models.Client{Code: model.Code}).Update(model)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	return nil
@@ -155,7 +175,7 @@ func (s ClientsService) Delete(id string) error {
 				fmt.Sprintf("code : %s", id))
 		}
 
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	return nil

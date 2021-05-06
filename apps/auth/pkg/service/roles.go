@@ -43,7 +43,7 @@ func (r RolesService) GetByID(id string) (*models.Role, error) {
 }
 
 func (r RolesService) Get(role *models.Role) error {
-	err := repo.Repo.Roles().Conditions(role).Get(role)
+	err := repo.Repo.Roles().WhereModel(role).Get(role)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			return httperror.ErrorCauseT(
@@ -54,7 +54,7 @@ func (r RolesService) Get(role *models.Role) error {
 				role.String())
 		}
 
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	return nil
@@ -62,7 +62,17 @@ func (r RolesService) Get(role *models.Role) error {
 
 func (r RolesService) GetAll(params map[string]interface{}, sort sorting.Sort) ([]models.Role, error) {
 	var roles []models.Role
-	err := repo.Repo.Roles().Conditions(params).Order(sort).Find(&roles)
+	collection, err := repo.Repo.Roles().WhereMap(params)
+	if err != nil {
+		httperror.ErrorCauseT(err, http.StatusBadRequest, err.Error())
+	}
+
+	collection, err = collection.Order(sort)
+	if err != nil {
+		httperror.ErrorCauseT(err, http.StatusBadRequest, err.Error())
+	}
+
+	err = collection.Find(&roles)
 	if err != nil {
 		if errors.Is(err, database.ErrRecordNotFound) {
 			return nil, httperror.ErrorCauseT(
@@ -80,13 +90,23 @@ func (r RolesService) GetAll(params map[string]interface{}, sort sorting.Sort) (
 
 func (r RolesService) GetAllPaged(params map[string]interface{}, sort sorting.Sort, pageable pagination.Pageable) (*pagination.Page, error) {
 	var roles []models.Role
-	err := repo.Repo.Roles().Conditions(params).Order(sort).Pageable(pageable).Find(&roles)
+	collection, err := repo.Repo.Roles().WhereMap(params)
+	if err != nil {
+		httperror.ErrorCauseT(err, http.StatusBadRequest, err.Error())
+	}
+
+	collectiono, err := collection.Order(sort)
+	if err != nil {
+		httperror.ErrorCauseT(err, http.StatusBadRequest, err.Error())
+	}
+
+	err = collectiono.Pageable(pageable).Find(&roles)
 	if err != nil {
 		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	var count int64
-	err = repo.Repo.Roles().Conditions(params).Count(&count)
+	err = collection.Count(&count)
 	if err != nil {
 		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
@@ -97,7 +117,7 @@ func (r RolesService) GetAllPaged(params map[string]interface{}, sort sorting.So
 func (r RolesService) Create(model *models.Role) error {
 	exists, err := repo.Repo.Roles().Exists(model)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	if exists {
@@ -110,7 +130,7 @@ func (r RolesService) Create(model *models.Role) error {
 
 	err = repo.Repo.Roles().Create(model)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	return nil
@@ -120,7 +140,7 @@ func (r RolesService) Update(model *models.Role) error {
 	role := &models.Role{Code: model.Code}
 	exists, err := repo.Repo.Roles().Exists(role)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	if !exists {
@@ -132,9 +152,9 @@ func (r RolesService) Update(model *models.Role) error {
 	}
 
 	model.CreatedAt = role.CreatedAt
-	err = repo.Repo.Roles().Conditions(&models.Role{Code: model.Code}).Update(model)
+	err = repo.Repo.Roles().WhereModel(&models.Role{Code: model.Code}).Update(model)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	return nil
@@ -155,7 +175,7 @@ func (r RolesService) Delete(id string) error {
 				fmt.Sprintf("code : %s", id))
 		}
 
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
 	}
 
 	return nil

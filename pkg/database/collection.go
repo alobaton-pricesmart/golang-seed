@@ -39,32 +39,40 @@ func (c *Collection) Pageable(pageable pagination.Pageable) *Collection {
 }
 
 // Order st up a Sort request to SQL statement.
-func (c *Collection) Order(sort sorting.Sort) *Collection {
+func (c *Collection) Order(sort sorting.Sort) (*Collection, error) {
 	for _, s := range sort.Sorters {
+		err := validateSQLInjection(s.Field)
+		if err != nil {
+			return nil, err
+		}
+		err = validateSQLInjection(s.Direction)
+		if err != nil {
+			return nil, err
+		}
+
 		c.db = c.db.Order(fmt.Sprintf("%v %v", s.Field, s.Direction))
 	}
+	return c, nil
+}
+
+// Conditions set up conditions through a Model to SQL statement.
+func (c *Collection) WhereModel(model Model) *Collection {
+	c.db = c.db.Where(model)
 	return c
 }
 
-// Conditions set up conditions through a map or a Model to SQL statement.
-func (c *Collection) Conditions(conditions interface{}) *Collection {
-	mapc, ok := conditions.(map[string]interface{})
-	if ok {
-		delete(mapc, "sort")
-		delete(mapc, "page")
-		delete(mapc, "size")
+// Conditions set up conditions through a map to SQL statement.
+func (c *Collection) WhereMap(conditions map[string]interface{}) (*Collection, error) {
+	delete(conditions, "sort")
+	delete(conditions, "page")
+	delete(conditions, "size")
 
-		c.db = c.db.Where(mapc)
-		return c
+	err := validate(conditions)
+	if err != nil {
+		return nil, err
 	}
 
-	modc, ok := conditions.(Model)
-	if ok {
-		c.db = c.db.Where(modc)
-		return c
-	}
-
-	return c
+	return c, nil
 }
 
 // Count perform a count.
