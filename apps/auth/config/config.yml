@@ -1,10 +1,10 @@
 name: auth
 port: 8082
 database:
-  user: prod-user
-  password: prod-password
-  address: db.prod.local:3306
-  name: prod-db
+  user: root
+  password: root-password
+  address: localhost:3306
+  name: auth_db
   maxOpenConns: 25
   maxIdleConns: 25
   connMaxLifetime: 300000
