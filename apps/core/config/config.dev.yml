@@ -1,10 +1,10 @@
 name: core
 port: 8083
 database:
-  user: dev-user
-  password: dev-password
-  address: db.dev.local:3306
-  name: dev-db
+  user: root
+  password: root-password
+  address: localhost:3306
+  name: core_db
   maxOpenConns: 25
   maxIdleConns: 25
   connMaxLifetime: 300000

@@ -1,4 +1,4 @@
-package models
+package repo
 
 import (
 	"github.com/juju/errors"

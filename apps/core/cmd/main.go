@@ -2,7 +2,7 @@ package main
 
 import (
 	"golang-seed/apps/core/pkg/config"
-	"golang-seed/apps/core/pkg/models"
+	"golang-seed/apps/core/pkg/repo"
 	"golang-seed/pkg/server"
 
 	"github.com/gorilla/mux"
@@ -17,7 +17,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := models.ConnectRepo(); err != nil {
+	if err := repo.ConnectRepo(); err != nil {
 		log.Fatal(err)
 	}
 
