@@ -17,6 +17,7 @@ type SettingsRoot struct {
 	Name     string   `yaml:"name"`
 	Port     int      `yaml:"port"`
 	Database Database `yaml:"database"`
+	Security Security `yaml:"security"`
 }
 
 type Database struct {
@@ -27,6 +28,11 @@ type Database struct {
 	MaxOpenConns    int    `yaml:"maxOpenConns"`
 	MaxIdleConns    int    `yaml:"maxIdleConns"`
 	ConnMaxLifetime int    `yaml:"connMaxLifetime"`
+}
+
+type Security struct {
+	KeyID string `yaml:"keyID"`
+	Key   string `yaml:"key"`
 }
 
 func ParseSettings() error {

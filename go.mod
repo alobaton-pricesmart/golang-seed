@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/alobaton/i18n v1.0.1 // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/go-oauth2/oauth2/v4 v4.3.0
 	github.com/google/uuid v1.2.0 // indirect
 	github.com/gorilla/mux v1.8.0

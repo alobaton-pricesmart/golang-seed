@@ -7,7 +7,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"golang-seed/apps/auth/pkg/messagesconst"
+	"golang-seed/apps/auth/pkg/authconst"
 	"golang-seed/apps/auth/pkg/models"
 	"golang-seed/apps/auth/pkg/repo"
 	"golang-seed/pkg/database"
@@ -33,12 +33,12 @@ func (s UsersService) GetByID(id string) (*models.User, error) {
 			return nil, httperror.ErrorCauseT(
 				err,
 				http.StatusNotFound,
-				messagesconst.GeneralErrorRegisterNotFoundParams,
-				messagesconst.UsersUsers,
+				authconst.GeneralErrorRegisterNotFoundParams,
+				authconst.UsersUsers,
 				fmt.Sprintf("id : %s", id))
 		}
 
-		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.GeneralErrorAccessingDatabase)
 	}
 
 	return user, nil
@@ -51,12 +51,12 @@ func (s UsersService) Get(user *models.User) error {
 			return httperror.ErrorCauseT(
 				err,
 				http.StatusNotFound,
-				messagesconst.GeneralErrorRegisterNotFoundParams,
-				messagesconst.UsersUsers,
+				authconst.GeneralErrorRegisterNotFoundParams,
+				authconst.UsersUsers,
 				user.String())
 		}
 
-		httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.GeneralErrorAccessingDatabase)
 	}
 
 	return nil
@@ -80,11 +80,11 @@ func (s UsersService) GetAll(params map[string]interface{}, sort sorting.Sort) (
 			return nil, httperror.ErrorCauseT(
 				err,
 				http.StatusNotFound,
-				messagesconst.GeneralErrorRegisterNotFound,
-				messagesconst.UsersUsers)
+				authconst.GeneralErrorRegisterNotFound,
+				authconst.UsersUsers)
 		}
 
-		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.GeneralErrorAccessingDatabase)
 	}
 
 	return users, nil
@@ -104,13 +104,13 @@ func (s UsersService) GetAllPaged(params map[string]interface{}, sort sorting.So
 
 	err = collectiono.Pageable(pageable).Find(&users)
 	if err != nil {
-		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.GeneralErrorAccessingDatabase)
 	}
 
 	var count int64
 	err = collection.Count(&count)
 	if err != nil {
-		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		return nil, httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.GeneralErrorAccessingDatabase)
 	}
 
 	return pagination.NewPage(pageable, int(count), users), nil
@@ -119,26 +119,26 @@ func (s UsersService) GetAllPaged(params map[string]interface{}, sort sorting.So
 func (s UsersService) Create(model *models.User) error {
 	exists, err := repo.Repo.Users().Exists(model)
 	if err != nil {
-		httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.GeneralErrorAccessingDatabase)
 	}
 
 	if exists {
 		return httperror.ErrorT(
 			http.StatusConflict,
-			messagesconst.GeneralErrorRegisterAlreadyExists,
-			messagesconst.UsersUser,
+			authconst.GeneralErrorRegisterAlreadyExists,
+			authconst.UsersUser,
 			fmt.Sprintf("id : %s", model.ID))
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(model.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.OAuthInvalidUsernamePassword)
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.OAuthInvalidUsernamePassword)
 	}
 	model.Password = string(hash)
 
 	err = repo.Repo.Users().Create(model)
 	if err != nil {
-		httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.GeneralErrorAccessingDatabase)
 	}
 
 	return nil
@@ -148,21 +148,21 @@ func (s UsersService) Update(model *models.User) error {
 	user := &models.User{ID: model.ID}
 	exists, err := repo.Repo.Users().Exists(user)
 	if err != nil {
-		httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.GeneralErrorAccessingDatabase)
 	}
 
 	if !exists {
 		return httperror.ErrorT(
 			http.StatusNotFound,
-			messagesconst.GeneralErrorRegisterNotFoundParams,
-			messagesconst.ClientsClients,
+			authconst.GeneralErrorRegisterNotFoundParams,
+			authconst.ClientsClients,
 			fmt.Sprintf("id : %s", model.ID))
 	}
 
 	model.CreatedAt = user.CreatedAt
 	err = repo.Repo.Users().WhereModel(&models.User{ID: model.ID}).Update(model)
 	if err != nil {
-		httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.GeneralErrorAccessingDatabase)
 	}
 
 	return nil
@@ -178,12 +178,12 @@ func (s UsersService) Delete(id string) error {
 			return httperror.ErrorCauseT(
 				err,
 				http.StatusNotFound,
-				messagesconst.GeneralErrorRegisterNotFoundParams,
-				messagesconst.UsersUsers,
+				authconst.GeneralErrorRegisterNotFoundParams,
+				authconst.UsersUsers,
 				fmt.Sprintf("id : %s", id))
 		}
 
-		httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorAccessingDatabase)
+		httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.GeneralErrorAccessingDatabase)
 	}
 
 	return nil

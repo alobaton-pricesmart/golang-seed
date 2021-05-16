@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"golang-seed/apps/auth/pkg/messagesconst"
+	"golang-seed/apps/auth/pkg/authconst"
 	"golang-seed/apps/auth/pkg/models"
 	"golang-seed/apps/auth/pkg/service"
 	"golang-seed/pkg/httperror"
@@ -36,7 +36,7 @@ func (h ClientsHandler) Get(w http.ResponseWriter, r *http.Request) error {
 
 	body, err := json.Marshal(client)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.GeneralErrorMarshal)
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -59,7 +59,7 @@ func (h ClientsHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
 
 	body, err := json.Marshal(clients)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.GeneralErrorMarshal)
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -87,7 +87,7 @@ func (h ClientsHandler) GetAllPaged(w http.ResponseWriter, r *http.Request) erro
 
 	body, err := json.Marshal(page)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.GeneralErrorMarshal)
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -102,7 +102,7 @@ func (h ClientsHandler) Create(w http.ResponseWriter, r *http.Request) error {
 
 	err := decoder.Decode(client)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusBadRequest, messagesconst.GeneralErrorMarshal)
+		return httperror.ErrorCauseT(err, http.StatusBadRequest, authconst.GeneralErrorMarshal)
 	}
 
 	err = h.clientsService.Create(client)
@@ -114,7 +114,7 @@ func (h ClientsHandler) Create(w http.ResponseWriter, r *http.Request) error {
 
 	body, err := json.Marshal(client)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.GeneralErrorMarshal)
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -129,7 +129,7 @@ func (h ClientsHandler) Update(w http.ResponseWriter, r *http.Request) error {
 
 	err := decoder.Decode(client)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusBadRequest, messagesconst.GeneralErrorMarshal)
+		return httperror.ErrorCauseT(err, http.StatusBadRequest, authconst.GeneralErrorMarshal)
 	}
 
 	err = h.clientsService.Update(client)
@@ -141,7 +141,7 @@ func (h ClientsHandler) Update(w http.ResponseWriter, r *http.Request) error {
 
 	body, err := json.Marshal(client)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.GeneralErrorMarshal)
 	}
 
 	w.WriteHeader(http.StatusOK)

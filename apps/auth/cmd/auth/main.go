@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net/http"
+
 	"golang-seed/apps/auth/pkg/config"
 	"golang-seed/apps/auth/pkg/handler"
 	"golang-seed/apps/auth/pkg/repo"
@@ -9,9 +11,10 @@ import (
 	"golang-seed/pkg/messages"
 	"golang-seed/pkg/server"
 	"golang-seed/pkg/server/middleware"
-	"net/http"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/go-oauth2/oauth2/v4"
+	"github.com/go-oauth2/oauth2/v4/generates"
 	"github.com/go-oauth2/oauth2/v4/manage"
 	oauth2server "github.com/go-oauth2/oauth2/v4/server"
 	"github.com/gorilla/mux"
@@ -52,6 +55,9 @@ func registerRoutes(r *mux.Router) {
 	// manager.SetPasswordTokenCfg, manager.SetClientTokenCfg, manager.SetRefreshTokenCfg
 	// token store
 	manager.MustTokenStorage(store.NewTokenStore())
+	manager.MapAccessGenerate(generates.NewJWTAccessGenerate(config.Settings.Security.KeyID,
+		[]byte(config.Settings.Security.Key),
+		jwt.SigningMethodHS512))
 
 	// client store
 	manager.MapClientStorage(store.NewClientStore())

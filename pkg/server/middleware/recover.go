@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 
-	"golang-seed/apps/auth/pkg/messagesconst"
+	"golang-seed/apps/auth/pkg/authconst"
 	"golang-seed/pkg/httperror"
 
 	log "github.com/sirupsen/logrus"
@@ -16,7 +16,7 @@ func RecoverHandler(next http.Handler) http.Handler {
 			if err := recover(); err != nil {
 				log.Printf("panic: %+v", err)
 
-				httpError, ok := httperror.ErrorCauseT(err.(error), http.StatusInternalServerError, messagesconst.GeneralErrorInternalServerError).(httpError)
+				httpError, ok := httperror.ErrorCauseT(err.(error), http.StatusInternalServerError, authconst.GeneralErrorInternalServerError).(httpError)
 				if !ok {
 					w.WriteHeader(500)
 					return

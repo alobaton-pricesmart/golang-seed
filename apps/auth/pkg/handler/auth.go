@@ -1,13 +1,18 @@
 package handler
 
 import (
-	"golang-seed/apps/auth/pkg/messagesconst"
+	"fmt"
+	"net/http"
+
+	"golang-seed/apps/auth/pkg/authconst"
+	"golang-seed/apps/auth/pkg/config"
 	"golang-seed/apps/auth/pkg/models"
 	"golang-seed/apps/auth/pkg/service"
 	"golang-seed/pkg/httperror"
-	"net/http"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/go-oauth2/oauth2/v4/errors"
+	"github.com/go-oauth2/oauth2/v4/generates"
 	"github.com/go-oauth2/oauth2/v4/server"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -49,12 +54,12 @@ func (a AuthHandler) PasswordAuthorizationHandler(username, password string) (st
 	}
 	err = a.usersService.Get(user)
 	if err != nil {
-		return "", httperror.ErrorCauseT(err, http.StatusUnauthorized, messagesconst.OAuthInvalidUsernamePassword)
+		return "", httperror.ErrorCauseT(err, http.StatusUnauthorized, authconst.OAuthInvalidUsernamePassword)
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
-		return "", httperror.ErrorT(http.StatusUnauthorized, messagesconst.OAuthInvalidUsernamePassword)
+		return "", httperror.ErrorT(http.StatusUnauthorized, authconst.OAuthInvalidUsernamePassword)
 	}
 
 	return user.ID, nil
@@ -75,9 +80,25 @@ func (a AuthHandler) InternalErrorHandler(err error) *errors.Response {
 }
 
 func (a AuthHandler) ValidateToken(r *http.Request) error {
-	_, err := a.srv.ValidationBearerToken(r)
+	tokenInfo, err := a.srv.ValidationBearerToken(r)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusUnauthorized, messagesconst.OauthInvalidToken)
+		return httperror.ErrorCauseT(err, http.StatusUnauthorized, authconst.OauthInvalidToken)
+	}
+
+	// Parse and verify jwt access token
+	token, err := jwt.ParseWithClaims(tokenInfo.GetAccess(), &generates.JWTAccessClaims{}, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("parse error")
+		}
+		return []byte(config.Settings.Security.Key), nil
+	})
+	if err != nil {
+		httperror.ErrorCauseT(err, http.StatusUnauthorized, authconst.OauthInvalidToken)
+	}
+
+	_, ok := token.Claims.(*generates.JWTAccessClaims)
+	if !ok || !token.Valid {
+		httperror.ErrorCauseT(err, http.StatusUnauthorized, authconst.OauthInvalidToken)
 	}
 
 	return nil
@@ -86,7 +107,7 @@ func (a AuthHandler) ValidateToken(r *http.Request) error {
 func (a AuthHandler) ValidatePermission(r *http.Request, permission string) error {
 	tokenInfo, err := a.srv.ValidationBearerToken(r)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusUnauthorized, messagesconst.OauthInvalidToken)
+		return httperror.ErrorCauseT(err, http.StatusUnauthorized, authconst.OauthInvalidToken)
 	}
 
 	// Consultar los permisos que tiene el usuario.

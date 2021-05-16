@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"golang-seed/apps/auth/pkg/messagesconst"
+	"golang-seed/apps/auth/pkg/authconst"
 	"golang-seed/apps/auth/pkg/models"
 	"golang-seed/apps/auth/pkg/service"
 	"golang-seed/pkg/httperror"
@@ -30,7 +30,7 @@ func (h UsersHandler) Get(w http.ResponseWriter, r *http.Request) error {
 
 	_, err := uuid.Parse(id)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusBadRequest, messagesconst.GeneralErrorInvalidField, "id")
+		return httperror.ErrorCauseT(err, http.StatusBadRequest, authconst.GeneralErrorInvalidField, "id")
 	}
 
 	user, err := h.usersService.GetByID(id)
@@ -42,7 +42,7 @@ func (h UsersHandler) Get(w http.ResponseWriter, r *http.Request) error {
 
 	body, err := json.Marshal(user)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.GeneralErrorMarshal)
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -65,7 +65,7 @@ func (h UsersHandler) GetAll(w http.ResponseWriter, r *http.Request) error {
 
 	body, err := json.Marshal(users)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.GeneralErrorMarshal)
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -93,7 +93,7 @@ func (h UsersHandler) GetAllPaged(w http.ResponseWriter, r *http.Request) error 
 
 	body, err := json.Marshal(page)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.GeneralErrorMarshal)
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -108,7 +108,7 @@ func (h UsersHandler) Create(w http.ResponseWriter, r *http.Request) error {
 
 	err := decoder.Decode(user)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusBadRequest, messagesconst.GeneralErrorMarshal)
+		return httperror.ErrorCauseT(err, http.StatusBadRequest, authconst.GeneralErrorMarshal)
 	}
 
 	user.ID = uuid.NewString()
@@ -121,7 +121,7 @@ func (h UsersHandler) Create(w http.ResponseWriter, r *http.Request) error {
 
 	body, err := json.Marshal(user)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.GeneralErrorMarshal)
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -136,7 +136,7 @@ func (h UsersHandler) Update(w http.ResponseWriter, r *http.Request) error {
 
 	err := decoder.Decode(user)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusBadRequest, messagesconst.GeneralErrorMarshal)
+		return httperror.ErrorCauseT(err, http.StatusBadRequest, authconst.GeneralErrorMarshal)
 	}
 
 	err = h.usersService.Update(user)
@@ -148,7 +148,7 @@ func (h UsersHandler) Update(w http.ResponseWriter, r *http.Request) error {
 
 	body, err := json.Marshal(user)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.GeneralErrorMarshal)
 	}
 
 	w.WriteHeader(http.StatusOK)

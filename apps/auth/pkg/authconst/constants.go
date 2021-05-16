@@ -1,4 +1,4 @@
-package messagesconst
+package authconst
 
 const (
 	GeneralErrorInternalServerError    = "general.error.internalServerError"

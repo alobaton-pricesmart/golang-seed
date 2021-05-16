@@ -2,7 +2,7 @@ package handler
 
 import (
 	"encoding/json"
-	"golang-seed/apps/auth/pkg/messagesconst"
+	"golang-seed/apps/auth/pkg/authconst"
 	"golang-seed/apps/auth/pkg/models"
 	"golang-seed/apps/auth/pkg/service"
 	"golang-seed/pkg/httperror"
@@ -29,7 +29,7 @@ func (h PermissionsHandler) Get(w http.ResponseWriter, r *http.Request) error {
 
 	_, err := uuid.Parse(id)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusBadRequest, messagesconst.GeneralErrorInvalidField, "id")
+		return httperror.ErrorCauseT(err, http.StatusBadRequest, authconst.GeneralErrorInvalidField, "id")
 	}
 
 	permission, err := h.permissionsService.GetByID(id)
@@ -39,7 +39,7 @@ func (h PermissionsHandler) Get(w http.ResponseWriter, r *http.Request) error {
 
 	body, err := json.Marshal(permission)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.GeneralErrorMarshal)
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -58,7 +58,7 @@ func (h PermissionsHandler) GetAll(w http.ResponseWriter, r *http.Request) error
 
 	body, err := json.Marshal(permissions)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.GeneralErrorMarshal)
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -78,7 +78,7 @@ func (h PermissionsHandler) GetAllPaged(w http.ResponseWriter, r *http.Request) 
 
 	body, err := json.Marshal(page)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.GeneralErrorMarshal)
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -93,7 +93,7 @@ func (h PermissionsHandler) Create(w http.ResponseWriter, r *http.Request) error
 
 	err := decoder.Decode(permission)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusBadRequest, messagesconst.GeneralErrorMarshal)
+		return httperror.ErrorCauseT(err, http.StatusBadRequest, authconst.GeneralErrorMarshal)
 	}
 
 	err = h.permissionsService.Create(permission)
@@ -103,7 +103,7 @@ func (h PermissionsHandler) Create(w http.ResponseWriter, r *http.Request) error
 
 	body, err := json.Marshal(permission)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.GeneralErrorMarshal)
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -118,7 +118,7 @@ func (h PermissionsHandler) Update(w http.ResponseWriter, r *http.Request) error
 
 	err := decoder.Decode(permission)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusBadRequest, messagesconst.GeneralErrorMarshal)
+		return httperror.ErrorCauseT(err, http.StatusBadRequest, authconst.GeneralErrorMarshal)
 	}
 
 	err = h.permissionsService.Update(permission)
@@ -128,7 +128,7 @@ func (h PermissionsHandler) Update(w http.ResponseWriter, r *http.Request) error
 
 	body, err := json.Marshal(permission)
 	if err != nil {
-		return httperror.ErrorCauseT(err, http.StatusInternalServerError, messagesconst.GeneralErrorMarshal)
+		return httperror.ErrorCauseT(err, http.StatusInternalServerError, authconst.GeneralErrorMarshal)
 	}
 
 	w.WriteHeader(http.StatusOK)

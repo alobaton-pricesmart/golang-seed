@@ -8,3 +8,6 @@ database:
   maxOpenConns: 25
   maxIdleConns: 25
   connMaxLifetime: 300000
+security:
+  keyID: app-name
+  key: xXGZPH
